@@ -101,9 +101,9 @@ Goal: ship the four v1 body rules and wire them through the YAML schema loader.
 
 ### 3.2 `body.forbid_h1`
 
-- [ ] Implement rule + factory.
-- [ ] Unit tests: H1 present → diagnostic with line; H1 absent → no diagnostic.
-- [ ] Add to `docs/rules.md` (one paragraph + example).
+- [x] Implement rule + factory.
+- [x] Unit tests: H1 present → diagnostic with line; H1 absent → no diagnostic.
+- [x] Add to `docs/rules.md` (one paragraph + example).
 
 ### 3.3 `body.required_sections`
 

@@ -23,6 +23,7 @@ pub use schema::Schema;
 pub use source::{SchemaEntry, SchemaSource};
 pub use validator::{CoreValidator, Reporter, Validator, FRONTMATTER_RULE_ID};
 
-// Re-export the Markdown arena type so downstream callers do not need a direct
-// dependency on `comrak` to allocate the AST `parse_file` returns.
+// Re-export comrak so downstream rule crates can inspect the AST without a direct dep.
+pub use comrak;
+pub use comrak::nodes;
 pub use comrak::Arena;
