@@ -18,12 +18,12 @@ Goal: a compiling Cargo workspace with all six crates, trait signatures defined,
 
 ### 1.2 Core types
 
-- [ ] In `mdtype-core`, define `Diagnostic`, `Severity`, `Fixit`, `Summary` as per SPEC.md §Core Types.
-- [ ] Define trait signatures: `BodyRule`, `SchemaSource`, `Reporter`, `Validator`.
-- [ ] Define `Schema` and `SchemaEntry` structs.
-- [ ] Define `ParsedDocument` (holds frontmatter `serde_json::Value` + AST handle).
-- [ ] Add `mdtype_core::Error` with `thiserror`.
-- [ ] Verify: `cargo build -p mdtype-core` passes; `cargo clippy -p mdtype-core -- -D warnings` passes.
+- [x] In `mdtype-core`, define `Diagnostic`, `Severity`, `Fixit`, `Summary` as per SPEC.md §Core Types.
+- [x] Define trait signatures: `BodyRule`, `SchemaSource`, `Reporter`, `Validator`.
+- [x] Define `Schema` and `SchemaEntry` structs.
+- [x] Define `ParsedDocument` (holds frontmatter `serde_json::Value` + AST handle).
+- [x] Add `mdtype_core::Error` with `thiserror`.
+- [x] Verify: `cargo build -p mdtype-core` passes; `cargo clippy -p mdtype-core -- -D warnings` passes.
 
 ### 1.3 Parser module in `mdtype-core`
 
