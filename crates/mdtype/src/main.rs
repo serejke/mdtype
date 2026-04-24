@@ -115,6 +115,7 @@ fn run(cli: &Cli) -> anyhow::Result<ExitCode> {
             &mode,
             file,
             &parsed.frontmatter,
+            &factories,
             &mut schemas,
             &mut override_cache,
         ) {
@@ -198,7 +199,7 @@ fn build_mode(
     schemas: &mut Vec<Schema>,
 ) -> anyhow::Result<Mode> {
     if let Some(p) = &cli.schema {
-        let schema = load_schema_file(p)
+        let schema = load_schema_file(p, factories)
             .with_context(|| format!("loading --schema {}", p.display()))?;
         schemas.push(schema);
         return Ok(Mode::Single);
@@ -236,6 +237,7 @@ fn resolve_schema_index(
     mode: &Mode,
     file: &Path,
     frontmatter: &serde_json::Value,
+    factories: &Arc<Vec<Box<dyn BodyRuleFactory>>>,
     schemas: &mut Vec<Schema>,
     override_cache: &mut HashMap<PathBuf, usize>,
 ) -> anyhow::Result<Option<usize>> {
@@ -261,7 +263,7 @@ fn resolve_schema_index(
         if let Some(&idx) = override_cache.get(&key) {
             return Ok(Some(idx));
         }
-        let schema = load_schema_file(&resolved)
+        let schema = load_schema_file(&resolved, factories)
             .with_context(|| format!("loading override schema {}", resolved.display()))?;
         let idx = schemas.len();
         schemas.push(schema);

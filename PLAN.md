@@ -94,10 +94,10 @@ Goal: ship the four v1 body rules and wire them through the YAML schema loader.
 
 ### 3.1 Rule registry plumbing
 
-- [ ] In `mdtype-rules-stdlib`, expose `fn register_stdlib() -> Vec<Box<dyn BodyRuleFactory>>` (or equivalent).
-- [ ] Define `BodyRuleFactory` trait in `mdtype-core` that parses a YAML node into `Box<dyn BodyRule>`. Each stdlib rule implements its own factory.
-- [ ] Update `YamlSchemaSource` to accept a list of factories and look up rule ids when parsing the `body:` block. Unknown ids produce a `config error → exit 2`.
-- [ ] Verify: `cargo build --workspace` green.
+- [x] In `mdtype-rules-stdlib`, expose `fn register_stdlib() -> Vec<Box<dyn BodyRuleFactory>>` (or equivalent).
+- [x] Define `BodyRuleFactory` trait in `mdtype-core` that parses a YAML node into `Box<dyn BodyRule>`. Each stdlib rule implements its own factory.
+- [x] Update `YamlSchemaSource` to accept a list of factories and look up rule ids when parsing the `body:` block. Unknown ids produce a `config error → exit 2`.
+- [x] Verify: `cargo build --workspace` green.
 
 ### 3.2 `body.forbid_h1`
 

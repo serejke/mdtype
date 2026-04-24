@@ -6,11 +6,12 @@
 
 #![forbid(unsafe_code)]
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use mdtype_core::{BodyRuleFactory, Error, Schema, SchemaEntry, SchemaSource};
+use mdtype_core::{BodyRule, BodyRuleFactory, Error, Schema, SchemaEntry, SchemaSource};
 use serde::Deserialize;
 
 /// File name of the glob-map config that `mdtype` discovers by walking up from the cwd.
@@ -19,8 +20,8 @@ pub const CONFIG_FILE_NAME: &str = ".mdtype.yaml";
 /// YAML-backed source.
 ///
 /// Constructed with the path to `.mdtype.yaml` and a registry of body-rule factories.
-/// The registry is unused while loading until Phase 3.1 wires body rules through it; it is
-/// stored now so callers do not have to thread it through later.
+/// Each `body:` entry in a referenced schema file is resolved against this registry; an
+/// unknown rule id surfaces as [`Error::Schema`] (CLI exit `2`).
 pub struct YamlSchemaSource {
     /// Path to `.mdtype.yaml`.
     pub config_path: PathBuf,
@@ -68,7 +69,7 @@ impl SchemaSource for YamlSchemaSource {
             } else {
                 self.root.join(&entry.schema)
             };
-            let schema = load_schema_file(&schema_path)?;
+            let schema = load_schema_file(&schema_path, &self.factories)?;
             out.push(SchemaEntry {
                 glob: entry.glob,
                 schema,
@@ -102,15 +103,19 @@ pub fn config_walk_up(start: &Path) -> Option<PathBuf> {
 
 /// Load a single schema YAML file off disk and parse it into [`Schema`].
 ///
-/// Body rules are deliberately left empty until Phase 3.1 wires the factory registry through.
-/// Used both internally by [`YamlSchemaSource::load`] and by the CLI when a per-file
-/// `schema:` frontmatter override needs to load a one-off schema.
+/// Each `body:` entry is resolved against `factories`. Both the canonical factory id and the
+/// kebab-case shortform (canonical id with `body.` stripped and `_` rewritten to `-`) are
+/// accepted, so YAML can stay idiomatic while diagnostics carry the canonical id.
 ///
 /// # Errors
 ///
 /// Returns [`Error::Io`] if `path` cannot be read and [`Error::Schema`] if the YAML is
-/// malformed or the frontmatter section cannot be converted to a JSON value.
-pub fn load_schema_file(path: &Path) -> Result<Schema, Error> {
+/// malformed, the frontmatter section cannot be converted to JSON, an entry omits its `rule`
+/// key, or a referenced rule id has no matching factory.
+pub fn load_schema_file(
+    path: &Path,
+    factories: &[Box<dyn BodyRuleFactory>],
+) -> Result<Schema, Error> {
     let raw = fs::read_to_string(path).map_err(|source| Error::Io {
         path: path.to_path_buf(),
         source,
@@ -126,13 +131,77 @@ pub fn load_schema_file(path: &Path) -> Result<Schema, Error> {
         })?),
         None => None,
     };
+
+    let lookup = build_factory_lookup(factories);
+    let mut body: Vec<Box<dyn BodyRule>> = Vec::with_capacity(parsed.body.len());
+    for (idx, entry) in parsed.body.into_iter().enumerate() {
+        body.push(build_body_rule(path, idx, entry, factories, &lookup)?);
+    }
+
     Ok(Schema {
         name: parsed.name,
         description: parsed.description,
         frontmatter,
-        // Body rules are resolved against the factory registry in Phase 3.1.
-        body: Vec::new(),
+        body,
     })
+}
+
+fn build_body_rule(
+    schema_path: &Path,
+    idx: usize,
+    entry: serde_yaml::Value,
+    factories: &[Box<dyn BodyRuleFactory>],
+    lookup: &HashMap<String, usize>,
+) -> Result<Box<dyn BodyRule>, Error> {
+    let serde_yaml::Value::Mapping(mut map) = entry else {
+        return Err(Error::Schema(format!(
+            "body[{idx}] in {} must be a mapping",
+            schema_path.display()
+        )));
+    };
+
+    let rule_id_value = map.remove("rule").ok_or_else(|| {
+        Error::Schema(format!(
+            "body[{idx}] in {} is missing the required `rule` key",
+            schema_path.display()
+        ))
+    })?;
+    let rule_id = rule_id_value.as_str().ok_or_else(|| {
+        Error::Schema(format!(
+            "body[{idx}] in {}: `rule` must be a string",
+            schema_path.display()
+        ))
+    })?;
+
+    let factory_idx = lookup.get(rule_id).copied().ok_or_else(|| {
+        Error::Schema(format!(
+            "unknown body-rule id `{rule_id}` in body[{idx}] of {}",
+            schema_path.display()
+        ))
+    })?;
+
+    let params_yaml = serde_yaml::Value::Mapping(map);
+    let params_json = serde_json::to_value(&params_yaml).map_err(|e| {
+        Error::Schema(format!(
+            "body[{idx}] params yaml→json in {}: {e}",
+            schema_path.display()
+        ))
+    })?;
+
+    factories[factory_idx].build(&params_json)
+}
+
+fn build_factory_lookup(factories: &[Box<dyn BodyRuleFactory>]) -> HashMap<String, usize> {
+    let mut map: HashMap<String, usize> = HashMap::new();
+    for (i, factory) in factories.iter().enumerate() {
+        let id = factory.id();
+        map.insert(id.to_string(), i);
+        if let Some(short) = id.strip_prefix("body.") {
+            let kebab = short.replace('_', "-");
+            map.entry(kebab).or_insert(i);
+        }
+    }
+    map
 }
 
 #[derive(Debug, Deserialize)]
@@ -153,6 +222,8 @@ struct SchemaFile {
     description: Option<String>,
     #[serde(default)]
     frontmatter: Option<serde_yaml::Value>,
+    #[serde(default)]
+    body: Vec<serde_yaml::Value>,
 }
 
 #[cfg(test)]
@@ -160,10 +231,34 @@ mod tests {
     use std::fs;
     use std::sync::Arc;
 
-    use mdtype_core::SchemaSource;
+    use mdtype_core::{
+        BodyRule, BodyRuleFactory, Diagnostic, Error, ParsedDocument, SchemaSource,
+    };
     use tempfile::tempdir;
 
-    use super::{config_walk_up, YamlSchemaSource, CONFIG_FILE_NAME};
+    use super::{config_walk_up, load_schema_file, YamlSchemaSource, CONFIG_FILE_NAME};
+
+    struct DummyRule;
+    impl BodyRule for DummyRule {
+        fn id(&self) -> &'static str {
+            "body.forbid_h1"
+        }
+        fn check(&self, _doc: &ParsedDocument, _out: &mut Vec<Diagnostic>) {}
+    }
+
+    struct DummyFactory;
+    impl BodyRuleFactory for DummyFactory {
+        fn id(&self) -> &'static str {
+            "body.forbid_h1"
+        }
+        fn build(&self, _params: &serde_json::Value) -> Result<Box<dyn BodyRule>, Error> {
+            Ok(Box::new(DummyRule))
+        }
+    }
+
+    fn dummy_registry() -> Arc<Vec<Box<dyn BodyRuleFactory>>> {
+        Arc::new(vec![Box::new(DummyFactory) as Box<dyn BodyRuleFactory>])
+    }
 
     #[test]
     fn loads_a_config_with_one_schema_entry() {
@@ -182,7 +277,8 @@ mod tests {
         )
         .unwrap();
 
-        let src = YamlSchemaSource::new(dir.path().join(CONFIG_FILE_NAME), Arc::new(Vec::new()));
+        let src =
+            YamlSchemaSource::new(dir.path().join(CONFIG_FILE_NAME), Arc::new(Vec::new()));
         let entries = src.load().expect("load");
 
         assert_eq!(entries.len(), 1);
@@ -194,6 +290,61 @@ mod tests {
         assert_eq!(fm["type"], serde_json::json!("object"));
         assert_eq!(fm["required"], serde_json::json!(["title"]));
         assert!(entry.schema.body.is_empty());
+    }
+
+    #[test]
+    fn body_rule_resolves_via_kebab_alias() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("blog-post.yaml");
+        fs::write(
+            &schema_path,
+            "name: blog-post\nfrontmatter: { type: object }\nbody:\n  - rule: forbid-h1\n",
+        )
+        .unwrap();
+
+        let factories = dummy_registry();
+        let schema = load_schema_file(&schema_path, &factories).expect("load");
+        assert_eq!(schema.body.len(), 1);
+        assert_eq!(schema.body[0].id(), "body.forbid_h1");
+    }
+
+    #[test]
+    fn body_rule_resolves_via_canonical_id() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("blog-post.yaml");
+        fs::write(
+            &schema_path,
+            "name: blog-post\nbody:\n  - rule: body.forbid_h1\n",
+        )
+        .unwrap();
+
+        let factories = dummy_registry();
+        let schema = load_schema_file(&schema_path, &factories).expect("load");
+        assert_eq!(schema.body.len(), 1);
+    }
+
+    #[test]
+    fn unknown_body_rule_is_a_schema_error() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("blog-post.yaml");
+        fs::write(
+            &schema_path,
+            "name: blog-post\nbody:\n  - rule: not-a-real-rule\n",
+        )
+        .unwrap();
+
+        let factories = dummy_registry();
+        let result = load_schema_file(&schema_path, &factories);
+        match result {
+            Err(Error::Schema(msg)) => {
+                assert!(
+                    msg.contains("not-a-real-rule"),
+                    "expected error to mention the rule id, got: {msg}"
+                );
+            }
+            Err(other) => panic!("expected Error::Schema, got {other}"),
+            Ok(_) => panic!("expected error, got Ok"),
+        }
     }
 
     #[test]
