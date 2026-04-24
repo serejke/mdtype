@@ -151,8 +151,8 @@ Goal: stable machine-readable output + documentation showing how to wire mdtype 
 
 ### 4.3 Docs: JSON contract + hooks
 
-- [ ] Write `docs/json-schema.md` documenting every field. Call out the versioning rule.
-- [ ] Write a short `docs/integrations.md` (or a section in README) with three recipes:
+- [x] Write `docs/json-schema.md` documenting every field. Call out the versioning rule.
+- [x] Write a short `docs/integrations.md` (or a section in README) with three recipes:
   1. Pre-commit hook (single `mdtype` invocation over staged `.md` files).
   2. CI job (runs on every PR; fails the build on exit 1).
   3. Generic LLM agent stop hook (reads the JSON, feeds diagnostics back to the model, re-runs until clean). Tool-agnostic — no product names.
