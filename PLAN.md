@@ -220,9 +220,9 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.2 Fixture-driven harness
 
-- [ ] Implement `crates/mdtype-tests/tests/fixtures.rs`: walks `crates/mdtype-tests/fixtures/<scenario>/`, runs the real `mdtype` binary against each, asserts exit code + stdout snapshot for each (one snapshot per `--format`).
-- [ ] Each `<scenario>/` is a self-contained mini-project: its own `.mdtype.yaml`, `schemas/`, `content/`, and a sibling `expected/{exit_code, stdout.human, stdout.json}`.
-- [ ] Use `escargot` or `env!("CARGO_BIN_EXE_mdtype")` so the harness exercises the real CLI surface.
+- [x] Implement `crates/mdtype-tests/tests/fixtures.rs`: walks `crates/mdtype-tests/fixtures/<scenario>/`, runs the real `mdtype` binary against each, asserts exit code + stdout snapshot for each (one snapshot per `--format`).
+- [x] Each `<scenario>/` is a self-contained mini-project: its own `.mdtype.yaml`, `schemas/`, `content/`, and a sibling `expected/{exit_code, stdout.human, stdout.json}`.
+- [x] Use `escargot` or `env!("CARGO_BIN_EXE_mdtype")` so the harness exercises the real CLI surface.
 
 ### 7.3 Simple scenarios (start here)
 

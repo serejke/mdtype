@@ -12,10 +12,11 @@ publish = false
 workspace = true
 
 [lib]
-# Empty library so the crate has a target; helpers live here as they grow.
 path = "src/lib.rs"
 
-[dev-dependencies]
+[dependencies]
 escargot = { workspace = true }
+
+[dev-dependencies]
 insta = { workspace = true }
 serde_json = { workspace = true }

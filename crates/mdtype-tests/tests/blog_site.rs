@@ -3,35 +3,9 @@
 //! Runs the real `mdtype` binary so the entire pipeline (clap → config discovery →
 //! schema load → parse → validate → reporter → exit) is exercised against pinned output.
 
-use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
-use std::sync::OnceLock;
 
-fn workspace_root() -> &'static Path {
-    static ROOT: OnceLock<PathBuf> = OnceLock::new();
-    ROOT.get_or_init(|| {
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .and_then(Path::parent)
-            .expect("workspace root above crates/mdtype-tests")
-            .to_path_buf()
-    })
-}
-
-/// Build (if needed) and return the path to the `mdtype` binary.
-fn mdtype_bin() -> &'static Path {
-    static BIN: OnceLock<PathBuf> = OnceLock::new();
-    BIN.get_or_init(|| {
-        let manifest = workspace_root().join("crates/mdtype/Cargo.toml");
-        escargot::CargoBuild::new()
-            .bin("mdtype")
-            .manifest_path(&manifest)
-            .run()
-            .expect("build mdtype")
-            .path()
-            .to_path_buf()
-    })
-}
+use mdtype_tests::{mdtype_bin, workspace_root};
 
 fn run_blog_site(extra: &[&str]) -> Output {
     Command::new(mdtype_bin())
