@@ -1,0 +1,15 @@
+[package]
+name = "mdtype-reporter-human"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Human-readable reporter for mdtype (colored, grouped by file)."
+
+[lints]
+workspace = true
+
+[dependencies]
+mdtype-core = { path = "../mdtype-core", version = "0.1.0" }
+owo-colors = { workspace = true }

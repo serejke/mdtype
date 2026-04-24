@@ -1,0 +1,24 @@
+[package]
+name = "mdtype"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "A type checker for Markdown. CLI front-end."
+
+[[bin]]
+name = "mdtype"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+mdtype-core = { path = "../mdtype-core", version = "0.1.0" }
+mdtype-schema-yaml = { path = "../mdtype-schema-yaml", version = "0.1.0" }
+mdtype-rules-stdlib = { path = "../mdtype-rules-stdlib", version = "0.1.0" }
+mdtype-reporter-human = { path = "../mdtype-reporter-human", version = "0.1.0" }
+mdtype-reporter-json = { path = "../mdtype-reporter-json", version = "0.1.0" }
+clap = { workspace = true }
+anyhow = { workspace = true }

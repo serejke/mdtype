@@ -1,0 +1,217 @@
+# Implementation Plan
+
+Reference: [SPEC.md](./SPEC.md)
+
+Each phase is a self-contained unit of work. Complete one phase fully before moving to the next. Commit after every meaningful step within a phase. A new context window can pick up from any unchecked item and know exactly what to do.
+
+---
+
+## Phase 1: Workspace Skeleton
+
+Goal: a compiling Cargo workspace with all six crates, trait signatures defined, `cargo build` green.
+
+### 1.1 Repo hygiene
+
+- [ ] Confirm `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `.gitignore`, `LICENSE-MIT`, `LICENSE-APACHE` exist from the scaffold.
+- [ ] Confirm `crates/mdtype-core`, `crates/mdtype-schema-yaml`, `crates/mdtype-rules-stdlib`, `crates/mdtype-reporter-human`, `crates/mdtype-reporter-json`, `crates/mdtype` directories exist with `Cargo.toml` + `src/lib.rs` (or `src/main.rs` for the bin).
+- [ ] Verify: `cargo build --workspace` succeeds with zero warnings.
+
+### 1.2 Core types
+
+- [ ] In `mdtype-core`, define `Diagnostic`, `Severity`, `Fixit`, `Summary` as per SPEC.md §Core Types.
+- [ ] Define trait signatures: `BodyRule`, `SchemaSource`, `Reporter`, `Validator`.
+- [ ] Define `Schema` and `SchemaEntry` structs.
+- [ ] Define `ParsedDocument` (holds frontmatter `serde_json::Value` + AST handle).
+- [ ] Add `mdtype_core::Error` with `thiserror`.
+- [ ] Verify: `cargo build -p mdtype-core` passes; `cargo clippy -p mdtype-core -- -D warnings` passes.
+
+### 1.3 Parser module in `mdtype-core`
+
+- [ ] Implement `parse_file(path: &Path) -> Result<ParsedDocument, Error>`:
+  - Split the YAML frontmatter (between `---` fences at top) from the body.
+  - Parse frontmatter with `serde_yaml` into `serde_json::Value`.
+  - Parse body with `comrak` into an AST.
+- [ ] Record 1-indexed line offset of the body start so rule diagnostics can report absolute line numbers.
+- [ ] Unit test: a fixture with frontmatter and a fixture without; both parse.
+- [ ] Verify: `cargo test -p mdtype-core` passes.
+
+### 1.4 Default `CoreValidator`
+
+- [ ] Implement `CoreValidator` in `mdtype-core` that:
+  1. Runs frontmatter through `jsonschema` if the schema declares one.
+  2. Runs each `BodyRule::check` in order, appending diagnostics.
+  3. Returns diagnostics sorted by (file, line, rule).
+- [ ] Unit test against a hand-built `Schema` with an empty body rule list.
+- [ ] Verify: `cargo test -p mdtype-core` passes.
+
+---
+
+## Phase 2: YAML Schema Source + CLI Wiring (MVP frontmatter-only)
+
+Goal: `mdtype` runs against real files, validates frontmatter only, prints a human report, exits correctly. No body rules yet.
+
+### 2.1 `mdtype-schema-yaml`
+
+- [ ] Implement `YamlSchemaSource { config_path, root }` that reads `.mdtype.yaml`.
+- [ ] Parse the `rules:` entries; each points to a schema file path.
+- [ ] For each entry, load the referenced YAML schema file (frontmatter block parsed into `serde_json::Value`; body block parsed as a list of rule invocations — leave body rules empty for now, error on unknown rule ids in a later phase).
+- [ ] Implement `config_walk_up(start: &Path) -> Option<PathBuf>` to find the nearest `.mdtype.yaml`.
+- [ ] Verify: unit test loads a fixture config + schema file pair and returns a `SchemaEntry`.
+
+### 2.2 `mdtype-reporter-human`
+
+- [ ] Implement `HumanReporter` grouping diagnostics by file.
+- [ ] Use `owo-colors` behind a `--no-color` toggle and tty detection.
+- [ ] Format matches SPEC.md §CLI examples.
+- [ ] Snapshot test with `insta` on a fixed diagnostic list.
+- [ ] Verify: `cargo test -p mdtype-reporter-human` passes.
+
+### 2.3 CLI plumbing
+
+- [ ] Define clap args in `crates/mdtype/src/main.rs` matching SPEC.md §CLI exactly.
+- [ ] Implement the pipeline:
+  1. Load config (explicit `--config` or walk-up).
+  2. Construct `YamlSchemaSource`, call `load()`.
+  3. Walk PATHS, collect `.md` files.
+  4. For each file, glob-match against schema entries; pick the schema (respect per-file `schema:` override).
+  5. Parse the file, run `CoreValidator`.
+  6. Feed all diagnostics into the selected reporter.
+  7. Exit 0/1/2 per the spec.
+- [ ] Implement per-file `schema:` override lookup.
+- [ ] Verify: `cargo run -p mdtype -- examples/blog-site/content/posts/2026-01-hello-world.md` exits 0 and prints nothing.
+
+### 2.4 End-to-end smoke test
+
+- [ ] Create `examples/blog-site/` with `.mdtype.yaml`, `schemas/blog-post.yaml`, and the three fixture posts from SPEC.md §Example Domain. Body rules in the schema can be an empty list for now.
+- [ ] Create a golden test in `tests/golden/` that runs the CLI over `examples/blog-site/`, captures stdout+exit, compares via `insta`.
+- [ ] Verify: `cargo test` passes; frontmatter violations are detected end-to-end.
+
+---
+
+## Phase 3: Body Rule Stdlib (`mdtype-rules-stdlib`)
+
+Goal: ship the four v1 body rules and wire them through the YAML schema loader.
+
+### 3.1 Rule registry plumbing
+
+- [ ] In `mdtype-rules-stdlib`, expose `fn register_stdlib() -> Vec<Box<dyn BodyRuleFactory>>` (or equivalent).
+- [ ] Define `BodyRuleFactory` trait in `mdtype-core` that parses a YAML node into `Box<dyn BodyRule>`. Each stdlib rule implements its own factory.
+- [ ] Update `YamlSchemaSource` to accept a list of factories and look up rule ids when parsing the `body:` block. Unknown ids produce a `config error → exit 2`.
+- [ ] Verify: `cargo build --workspace` green.
+
+### 3.2 `body.forbid_h1`
+
+- [ ] Implement rule + factory.
+- [ ] Unit tests: H1 present → diagnostic with line; H1 absent → no diagnostic.
+- [ ] Add to `docs/rules.md` (one paragraph + example).
+
+### 3.3 `body.required_sections`
+
+- [ ] Implement (exact-text H2 match by default).
+- [ ] Unit tests: all present, one missing, none present.
+- [ ] Add to `docs/rules.md`.
+
+### 3.4 `body.section_order`
+
+- [ ] Implement both `strict` and `relaxed` modes.
+- [ ] Unit tests covering: correct order, inverted order (relaxed & strict), extra section between (relaxed ignores, strict flags), missing required section.
+- [ ] Add to `docs/rules.md`.
+
+### 3.5 `body.forbidden_sections`
+
+- [ ] Implement.
+- [ ] Unit tests: forbidden present → diagnostic with line; absent → clean.
+- [ ] Add to `docs/rules.md`.
+
+### 3.6 Wire into CLI + fixture
+
+- [ ] In `crates/mdtype/src/main.rs`, register stdlib factories with `YamlSchemaSource` on startup.
+- [ ] Update `examples/blog-site/schemas/blog-post.yaml` to use all four rules per SPEC.md §Schema File Format.
+- [ ] Update the golden test fixtures so body-rule violations are exercised.
+- [ ] Verify: golden tests pass; broken fixtures trigger the expected rule ids.
+
+---
+
+## Phase 4: JSON Reporter + Stop-Hook Integration Story
+
+Goal: stable machine-readable output + documentation showing how to wire mdtype into hooks.
+
+### 4.1 `mdtype-reporter-json`
+
+- [ ] Define serde-serializable wire types that mirror SPEC.md §JSON Output Contract exactly.
+- [ ] Implement `JsonReporter` emitting pretty-printed JSON when stdout is a tty, compact otherwise.
+- [ ] Include `version: "1"` unconditionally.
+- [ ] Snapshot test with `insta` — this is the public contract.
+
+### 4.2 CLI `--format json`
+
+- [ ] Wire `--format json` to select `JsonReporter`.
+- [ ] Default format: `human` if stdout is a tty, else `json`.
+- [ ] Golden test: `mdtype --format json examples/blog-site/` matches a pinned snapshot.
+
+### 4.3 Docs: JSON contract + hooks
+
+- [ ] Write `docs/json-schema.md` documenting every field. Call out the versioning rule.
+- [ ] Write a short `docs/integrations.md` (or a section in README) with three recipes:
+  1. Pre-commit hook (single `mdtype` invocation over staged `.md` files).
+  2. CI job (runs on every PR; fails the build on exit 1).
+  3. Generic LLM agent stop hook (reads the JSON, feeds diagnostics back to the model, re-runs until clean). Tool-agnostic — no product names.
+
+---
+
+## Phase 5: Docs + Extension Guide
+
+Goal: the composable story made concrete.
+
+### 5.1 `docs/schema.md`
+
+- [ ] Document every field in the schema file format (name, description, frontmatter, body). Include a full working example. Link to the JSON Schema 2020-12 spec for frontmatter.
+
+### 5.2 `docs/extending.md`
+
+- [ ] Write a working example: a new `BodyRule` (e.g., `heading_depth_limit`) in a downstream crate in under 50 lines.
+- [ ] Show how to register a custom `SchemaSource` (e.g., JSON-backed).
+- [ ] Show how to swap the reporter.
+- [ ] Include a `cargo.toml` snippet showing which `mdtype-*` crates the downstream crate depends on.
+
+### 5.3 README
+
+- [ ] One-screen overview. One runnable example. Link to `docs/`. No marketing, no emojis, no screenshots.
+- [ ] Verify: README fits in ~80 lines.
+
+---
+
+## Phase 6: Polish + Release Prep
+
+### 6.1 Lint & format sweep
+
+- [ ] `cargo fmt --all --check` clean.
+- [ ] `cargo clippy --all-targets --all-features -- -D warnings` clean.
+- [ ] `cargo test --workspace` clean.
+
+### 6.2 Full run verification
+
+- [ ] `cargo run -p mdtype -- examples/blog-site/` exits 1 and lists the expected diagnostics.
+- [ ] `cargo run -p mdtype -- examples/blog-site/content/posts/2026-01-hello-world.md` exits 0.
+- [ ] `cargo run -p mdtype -- --format json examples/blog-site/` produces JSON matching the documented contract.
+- [ ] Malformed `.mdtype.yaml` → exit 2 with a clear error.
+- [ ] `mdtype --help` prints the flag table from SPEC.md §CLI.
+
+### 6.3 Acceptance checklist from SPEC.md
+
+- [ ] Walk SPEC.md §Acceptance Criteria for v1 and tick each item.
+
+### 6.4 CI
+
+- [ ] Add `.github/workflows/ci.yml` running `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test --workspace` on push and PR.
+- [ ] Verify: CI green on an empty PR.
+
+---
+
+## Appendix: Session Discipline
+
+- Always read `CLAUDE.md` before starting a session.
+- Always read `PLAN.md` to find the first unchecked item.
+- Work on exactly one item at a time. Mark `[x]` when verified, not when written.
+- Commit after every 1.x / 2.x sub-task, not at the end of a phase.
+- When a phase is complete, stop. Do not start the next phase in the same session unless the context is fresh and the scope is still trivially small.
