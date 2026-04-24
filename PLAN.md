@@ -119,9 +119,9 @@ Goal: ship the four v1 body rules and wire them through the YAML schema loader.
 
 ### 3.5 `body.forbidden_sections`
 
-- [ ] Implement.
-- [ ] Unit tests: forbidden present → diagnostic with line; absent → clean.
-- [ ] Add to `docs/rules.md`.
+- [x] Implement.
+- [x] Unit tests: forbidden present → diagnostic with line; absent → clean.
+- [x] Add to `docs/rules.md`.
 
 ### 3.6 Wire into CLI + fixture
 

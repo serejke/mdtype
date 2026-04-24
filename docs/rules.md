@@ -71,3 +71,25 @@ body:
     order: [Summary, Background, Details, Conclusion]
     mode: relaxed
 ```
+
+## `body.forbidden_sections`
+
+YAML alias: `forbidden-sections`. Parameters: `sections: [String]` (non-empty).
+
+Asserts that none of the named headings appear as a level-2 (`##`) heading. Useful for blocking scratchpad sections that should never reach a published file (e.g., `TODO`, `Scratch`, `WIP`). Each occurrence produces a diagnostic with the heading's line and a `DeleteLine` fixit hint.
+
+```yaml
+body:
+  - rule: forbidden-sections
+    sections: [TODO, Scratch, WIP]
+```
+
+```markdown
+## Summary
+
+ok
+
+## TODO <-- triggers body.forbidden_sections
+
+remember to remove this before shipping
+```
