@@ -12,7 +12,7 @@ Goal: a compiling Cargo workspace with all six crates, trait signatures defined,
 
 ### 1.1 Repo hygiene
 
-- [x] Confirm `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `.gitignore`, `LICENSE-MIT`, `LICENSE-APACHE` exist from the scaffold.
+- [x] Confirm `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `.gitignore`, `LICENSE-MIT` exist from the scaffold.
 - [x] Confirm `crates/mdtype-core`, `crates/mdtype-schema-yaml`, `crates/mdtype-rules-stdlib`, `crates/mdtype-reporter-human`, `crates/mdtype-reporter-json`, `crates/mdtype` directories exist with `Cargo.toml` + `src/lib.rs` (or `src/main.rs` for the bin).
 - [x] Verify: `cargo build --workspace` succeeds with zero warnings.
 

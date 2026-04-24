@@ -68,7 +68,6 @@ mdtype/
 ├── clippy.toml
 ├── README.md                   # one-screen man-page style
 ├── LICENSE-MIT
-├── LICENSE-APACHE
 ├── .gitignore
 ├── docs/
 │   ├── schema.md               # schema file format reference

@@ -41,4 +41,4 @@ For machine-readable output in hooks and CI, pass `--format json`.
 
 ## License
 
-MIT OR Apache-2.0.
+MIT.
