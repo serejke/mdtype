@@ -4,3 +4,7 @@ Cargo.lock.bak
 
 # insta review state
 **/*.pending-snap
+
+# Editor + harness noise
+/.idea/
+/.claude/ralph-loop.local.md
