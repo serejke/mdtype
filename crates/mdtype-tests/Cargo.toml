@@ -1,0 +1,21 @@
+[package]
+name = "mdtype-tests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "High-level integration tests for mdtype: scenario fixtures and golden snapshots."
+publish = false
+
+[lints]
+workspace = true
+
+[lib]
+# Empty library so the crate has a target; helpers live here as they grow.
+path = "src/lib.rs"
+
+[dev-dependencies]
+escargot = { workspace = true }
+insta = { workspace = true }
+serde_json = { workspace = true }

@@ -1,5 +1,5 @@
 ---
-source: crates/mdtype/tests/golden.rs
+source: crates/mdtype-tests/tests/blog_site.rs
 expression: stdout
 ---
 examples/blog-site/content/posts/2026-02-missing-author.md

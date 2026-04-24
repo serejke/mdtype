@@ -358,6 +358,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "escargot"
+version = "0.5.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11c3aea32bc97b500c9ca6a72b768a26e558264303d101d3409cf6d57a9ed0cf"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "fancy-regex"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -835,7 +846,6 @@ dependencies = [
  "anyhow",
  "clap",
  "globset",
- "insta",
  "mdtype-core",
  "mdtype-reporter-human",
  "mdtype-reporter-json",
@@ -896,6 +906,15 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "tempfile",
+]
+
+[[package]]
+name = "mdtype-tests"
+version = "0.1.0"
+dependencies = [
+ "escargot",
+ "insta",
+ "serde_json",
 ]
 
 [[package]]

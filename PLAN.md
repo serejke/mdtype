@@ -214,9 +214,9 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.1 Crate skeleton
 
-- [ ] Create `crates/mdtype-tests/` as a workspace member. Library is empty (or pure helpers); the unit of work is `tests/`.
-- [ ] Move `crates/mdtype/tests/golden.rs` and its snapshots under the new crate (`crates/mdtype-tests/tests/blog_site.rs` keeps the canonical example covered).
-- [ ] Verify: `cargo test -p mdtype-tests` passes the moved blog-site goldens.
+- [x] Create `crates/mdtype-tests/` as a workspace member. Library is empty (or pure helpers); the unit of work is `tests/`.
+- [x] Move `crates/mdtype/tests/golden.rs` and its snapshots under the new crate (`crates/mdtype-tests/tests/blog_site.rs` keeps the canonical example covered).
+- [x] Verify: `cargo test -p mdtype-tests` passes the moved blog-site goldens.
 
 ### 7.2 Fixture-driven harness
 

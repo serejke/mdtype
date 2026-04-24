@@ -3,17 +3,43 @@
 //! Runs the real `mdtype` binary so the entire pipeline (clap → config discovery →
 //! schema load → parse → validate → reporter → exit) is exercised against pinned output.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use std::sync::OnceLock;
+
+fn workspace_root() -> &'static Path {
+    static ROOT: OnceLock<PathBuf> = OnceLock::new();
+    ROOT.get_or_init(|| {
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .and_then(Path::parent)
+            .expect("workspace root above crates/mdtype-tests")
+            .to_path_buf()
+    })
+}
+
+/// Build (if needed) and return the path to the `mdtype` binary.
+fn mdtype_bin() -> &'static Path {
+    static BIN: OnceLock<PathBuf> = OnceLock::new();
+    BIN.get_or_init(|| {
+        let manifest = workspace_root().join("crates/mdtype/Cargo.toml");
+        escargot::CargoBuild::new()
+            .bin("mdtype")
+            .manifest_path(&manifest)
+            .run()
+            .expect("build mdtype")
+            .path()
+            .to_path_buf()
+    })
+}
 
 fn run_blog_site(extra: &[&str]) -> Output {
-    let bin = env!("CARGO_BIN_EXE_mdtype");
-    let workspace_root = workspace_root();
-    let mut cmd = Command::new(bin);
-    cmd.current_dir(&workspace_root)
+    Command::new(mdtype_bin())
+        .current_dir(workspace_root())
         .args(extra)
-        .arg("examples/blog-site/");
-    cmd.output().expect("spawn mdtype")
+        .arg("examples/blog-site/")
+        .output()
+        .expect("spawn mdtype")
 }
 
 fn assert_clean_stderr(output: &Output) {
@@ -44,8 +70,8 @@ fn examples_blog_site_json() {
     assert_eq!(exit, 1, "expected exit 1, got {exit}\nstdout:\n{stdout}");
     assert_clean_stderr(&output);
 
-    // Round-trip through serde_json so the snapshot is deterministic regardless of pretty-vs-
-    // compact output choice and immune to incidental whitespace differences.
+    // Round-trip through serde_json so the snapshot is deterministic regardless of
+    // pretty-vs-compact output choice and immune to incidental whitespace differences.
     let parsed: serde_json::Value =
         serde_json::from_str(stdout.trim()).expect("CLI emitted invalid JSON");
     let pretty = serde_json::to_string_pretty(&parsed).expect("re-serialise");
@@ -64,12 +90,4 @@ fn examples_blog_site_auto_in_pipe_is_json() {
     let parsed: serde_json::Value =
         serde_json::from_str(stdout.trim()).expect("CLI emitted invalid JSON");
     assert_eq!(parsed["version"], serde_json::json!("1"));
-}
-
-fn workspace_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(std::path::Path::parent)
-        .expect("workspace root above crates/mdtype")
-        .to_path_buf()
 }

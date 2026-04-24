@@ -7,6 +7,7 @@ members = [
     "crates/mdtype-reporter-human",
     "crates/mdtype-reporter-json",
     "crates/mdtype",
+    "crates/mdtype-tests",
 ]
 
 [workspace.package]
@@ -39,3 +40,4 @@ clap = { version = "4", features = ["derive"] }
 owo-colors = "4"
 insta = "1"
 tempfile = "3"
+escargot = "0.5"
