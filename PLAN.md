@@ -169,10 +169,10 @@ Goal: the composable story made concrete.
 
 ### 5.2 `docs/extending.md`
 
-- [ ] Write a working example: a new `BodyRule` (e.g., `heading_depth_limit`) in a downstream crate in under 50 lines.
-- [ ] Show how to register a custom `SchemaSource` (e.g., JSON-backed).
-- [ ] Show how to swap the reporter.
-- [ ] Include a `cargo.toml` snippet showing which `mdtype-*` crates the downstream crate depends on.
+- [x] Write a working example: a new `BodyRule` (e.g., `heading_depth_limit`) in a downstream crate in under 50 lines.
+- [x] Show how to register a custom `SchemaSource` (e.g., JSON-backed).
+- [x] Show how to swap the reporter.
+- [x] Include a `cargo.toml` snippet showing which `mdtype-*` crates the downstream crate depends on.
 
 ### 5.3 README
 
