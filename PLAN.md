@@ -191,11 +191,11 @@ Goal: the composable story made concrete.
 
 ### 6.2 Full run verification
 
-- [ ] `cargo run -p mdtype -- examples/blog-site/` exits 1 and lists the expected diagnostics.
-- [ ] `cargo run -p mdtype -- examples/blog-site/content/posts/2026-01-hello-world.md` exits 0.
-- [ ] `cargo run -p mdtype -- --format json examples/blog-site/` produces JSON matching the documented contract.
-- [ ] Malformed `.mdtype.yaml` → exit 2 with a clear error.
-- [ ] `mdtype --help` prints the flag table from SPEC.md §CLI.
+- [x] `cargo run -p mdtype -- examples/blog-site/` exits 1 and lists the expected diagnostics.
+- [x] `cargo run -p mdtype -- examples/blog-site/content/posts/2026-01-hello-world.md` exits 0.
+- [x] `cargo run -p mdtype -- --format json examples/blog-site/` produces JSON matching the documented contract.
+- [x] Malformed `.mdtype.yaml` → exit 2 with a clear error.
+- [x] `mdtype --help` prints the flag table from SPEC.md §CLI.
 
 ### 6.3 Acceptance checklist from SPEC.md
 
