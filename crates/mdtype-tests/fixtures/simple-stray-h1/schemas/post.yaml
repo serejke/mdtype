@@ -1,0 +1,14 @@
+name: post
+description: Body must not contain a top-level H1.
+
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+      minLength: 1
+
+body:
+  - rule: forbid-h1

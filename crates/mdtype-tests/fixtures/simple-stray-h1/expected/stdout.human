@@ -1,0 +1,4 @@
+./content/stray.md
+  error[body.forbid_h1] line 5: top-level H1 is not allowed
+
+mdtype: 1 error across 1 file (1 file scanned)

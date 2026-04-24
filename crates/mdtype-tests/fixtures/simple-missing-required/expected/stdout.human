@@ -1,0 +1,4 @@
+./content/no-author.md
+  error[frontmatter.schema] "author" is a required property
+
+mdtype: 1 error across 1 file (1 file scanned)

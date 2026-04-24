@@ -1,0 +1,15 @@
+name: post
+description: Title + author both required.
+
+frontmatter:
+  type: object
+  required: [title, author]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+      minLength: 1
+    author:
+      type: string
+
+body: []

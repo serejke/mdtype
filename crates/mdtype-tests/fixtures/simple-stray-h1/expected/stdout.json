@@ -1,0 +1,22 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/stray.md",
+      "fixit": {
+        "kind": "DeleteLine",
+        "line": 5
+      },
+      "line": 5,
+      "message": "top-level H1 is not allowed",
+      "rule": "body.forbid_h1",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 1,
+    "files_scanned": 1,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

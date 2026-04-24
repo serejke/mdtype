@@ -226,9 +226,9 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.3 Simple scenarios (start here)
 
-- [ ] `simple-clean/` — single valid file; exit `0`; empty diagnostics.
-- [ ] `simple-missing-required/` — single file missing one required frontmatter field; exit `1`; one diagnostic.
-- [ ] `simple-stray-h1/` — single file with a `# H1`; exit `1`; one `body.forbid_h1` diagnostic.
+- [x] `simple-clean/` — single valid file; exit `0`; empty diagnostics.
+- [x] `simple-missing-required/` — single file missing one required frontmatter field; exit `1`; one diagnostic.
+- [x] `simple-stray-h1/` — single file with a `# H1`; exit `1`; one `body.forbid_h1` diagnostic.
 
 ### 7.4 Configuration scenarios
 
