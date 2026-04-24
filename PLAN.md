@@ -37,12 +37,12 @@ Goal: a compiling Cargo workspace with all six crates, trait signatures defined,
 
 ### 1.4 Default `CoreValidator`
 
-- [ ] Implement `CoreValidator` in `mdtype-core` that:
+- [x] Implement `CoreValidator` in `mdtype-core` that:
   1. Runs frontmatter through `jsonschema` if the schema declares one.
   2. Runs each `BodyRule::check` in order, appending diagnostics.
   3. Returns diagnostics sorted by (file, line, rule).
-- [ ] Unit test against a hand-built `Schema` with an empty body rule list.
-- [ ] Verify: `cargo test -p mdtype-core` passes.
+- [x] Unit test against a hand-built `Schema` with an empty body rule list.
+- [x] Verify: `cargo test -p mdtype-core` passes.
 
 ---
 

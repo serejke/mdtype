@@ -17,6 +17,7 @@ serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 comrak = { workspace = true }
 globset = { workspace = true }
+jsonschema = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
