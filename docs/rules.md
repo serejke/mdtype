@@ -28,3 +28,28 @@ title: Hello
 
 Body text.
 ```
+
+## `body.required_sections`
+
+YAML alias: `required-sections`. Parameters: `sections: [String]` (non-empty).
+
+Asserts that each named heading appears in the body as a level-2 (`##`) heading. Matching is exact-text and case-sensitive; emphasis spans inside the heading are flattened (`## *Summary*` matches the section name `Summary`). Each missing section produces one whole-file diagnostic (no line) with an `AppendSection` fixit hint.
+
+```yaml
+# schemas/blog-post.yaml
+body:
+  - rule: required-sections
+    sections: [Summary, Conclusion]
+```
+
+```markdown
+---
+title: Hello
+---
+
+## Summary
+
+Intro.
+
+(no `## Conclusion` --> triggers body.required_sections)
+```

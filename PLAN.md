@@ -107,9 +107,9 @@ Goal: ship the four v1 body rules and wire them through the YAML schema loader.
 
 ### 3.3 `body.required_sections`
 
-- [ ] Implement (exact-text H2 match by default).
-- [ ] Unit tests: all present, one missing, none present.
-- [ ] Add to `docs/rules.md`.
+- [x] Implement (exact-text H2 match by default).
+- [x] Unit tests: all present, one missing, none present.
+- [x] Add to `docs/rules.md`.
 
 ### 3.4 `body.section_order`
 
