@@ -60,11 +60,11 @@ Goal: `mdtype` runs against real files, validates frontmatter only, prints a hum
 
 ### 2.2 `mdtype-reporter-human`
 
-- [ ] Implement `HumanReporter` grouping diagnostics by file.
-- [ ] Use `owo-colors` behind a `--no-color` toggle and tty detection.
-- [ ] Format matches SPEC.md §CLI examples.
-- [ ] Snapshot test with `insta` on a fixed diagnostic list.
-- [ ] Verify: `cargo test -p mdtype-reporter-human` passes.
+- [x] Implement `HumanReporter` grouping diagnostics by file.
+- [x] Use `owo-colors` behind a `--no-color` toggle and tty detection.
+- [x] Format matches SPEC.md §CLI examples.
+- [x] Snapshot test with `insta` on a fixed diagnostic list.
+- [x] Verify: `cargo test -p mdtype-reporter-human` passes.
 
 ### 2.3 CLI plumbing
 

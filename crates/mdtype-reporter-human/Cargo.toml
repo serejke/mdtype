@@ -13,3 +13,6 @@ workspace = true
 [dependencies]
 mdtype-core = { path = "../mdtype-core", version = "0.1.0" }
 owo-colors = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }

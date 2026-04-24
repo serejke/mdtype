@@ -1,0 +1,10 @@
+---
+source: crates/mdtype-reporter-human/src/lib.rs
+expression: render(&reporter)
+---
+content/posts/2026-02-missing-author.md
+  error[frontmatter.schema] missing required property 'author'
+
+content/posts/2026-03-stray-h1.md
+  error[body.forbid_h1] line 7: top-level H1 is not allowed
+  error[body.required_sections] line 12: missing required section 'Summary'
