@@ -113,9 +113,9 @@ Goal: ship the four v1 body rules and wire them through the YAML schema loader.
 
 ### 3.4 `body.section_order`
 
-- [ ] Implement both `strict` and `relaxed` modes.
-- [ ] Unit tests covering: correct order, inverted order (relaxed & strict), extra section between (relaxed ignores, strict flags), missing required section.
-- [ ] Add to `docs/rules.md`.
+- [x] Implement both `strict` and `relaxed` modes.
+- [x] Unit tests covering: correct order, inverted order (relaxed & strict), extra section between (relaxed ignores, strict flags), missing required section.
+- [x] Add to `docs/rules.md`.
 
 ### 3.5 `body.forbidden_sections`
 

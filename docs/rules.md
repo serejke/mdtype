@@ -53,3 +53,21 @@ Intro.
 
 (no `## Conclusion` --> triggers body.required_sections)
 ```
+
+## `body.section_order`
+
+YAML alias: `section-order`. Parameters: `order: [String]` (non-empty), `mode: strict | relaxed` (default `relaxed`).
+
+Asserts that the listed sections appear as level-2 headings in the declared order. Both modes also flag any required section that is missing from the body.
+
+- **`relaxed`** — required sections must appear in the listed order; other H2s may appear before, between, or after.
+- **`strict`** — same ordering check, plus no other H2 may appear _between_ two consecutive required sections. Extras before the first or after the last required section are still allowed; use `body.forbidden_sections` if you want to ban them outright.
+
+Each violation gets its own diagnostic with the offending heading's line.
+
+```yaml
+body:
+  - rule: section-order
+    order: [Summary, Background, Details, Conclusion]
+    mode: relaxed
+```
