@@ -52,11 +52,11 @@ Goal: `mdtype` runs against real files, validates frontmatter only, prints a hum
 
 ### 2.1 `mdtype-schema-yaml`
 
-- [ ] Implement `YamlSchemaSource { config_path, root }` that reads `.mdtype.yaml`.
-- [ ] Parse the `rules:` entries; each points to a schema file path.
-- [ ] For each entry, load the referenced YAML schema file (frontmatter block parsed into `serde_json::Value`; body block parsed as a list of rule invocations — leave body rules empty for now, error on unknown rule ids in a later phase).
-- [ ] Implement `config_walk_up(start: &Path) -> Option<PathBuf>` to find the nearest `.mdtype.yaml`.
-- [ ] Verify: unit test loads a fixture config + schema file pair and returns a `SchemaEntry`.
+- [x] Implement `YamlSchemaSource { config_path, root }` that reads `.mdtype.yaml`.
+- [x] Parse the `rules:` entries; each points to a schema file path.
+- [x] For each entry, load the referenced YAML schema file (frontmatter block parsed into `serde_json::Value`; body block parsed as a list of rule invocations — leave body rules empty for now, error on unknown rule ids in a later phase).
+- [x] Implement `config_walk_up(start: &Path) -> Option<PathBuf>` to find the nearest `.mdtype.yaml`.
+- [x] Verify: unit test loads a fixture config + schema file pair and returns a `SchemaEntry`.
 
 ### 2.2 `mdtype-reporter-human`
 
