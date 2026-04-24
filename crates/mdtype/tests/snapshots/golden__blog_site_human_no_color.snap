@@ -5,4 +5,7 @@ expression: stdout
 examples/blog-site/content/posts/2026-02-missing-author.md
   error[frontmatter.schema] "author" is a required property
 
-mdtype: 1 error across 1 file (4 files scanned)
+examples/blog-site/content/posts/2026-03-stray-h1.md
+  error[body.forbid_h1] line 8: top-level H1 is not allowed
+
+mdtype: 2 errors across 2 files (4 files scanned)

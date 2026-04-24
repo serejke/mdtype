@@ -125,10 +125,10 @@ Goal: ship the four v1 body rules and wire them through the YAML schema loader.
 
 ### 3.6 Wire into CLI + fixture
 
-- [ ] In `crates/mdtype/src/main.rs`, register stdlib factories with `YamlSchemaSource` on startup.
-- [ ] Update `examples/blog-site/schemas/blog-post.yaml` to use all four rules per SPEC.md §Schema File Format.
-- [ ] Update the golden test fixtures so body-rule violations are exercised.
-- [ ] Verify: golden tests pass; broken fixtures trigger the expected rule ids.
+- [x] In `crates/mdtype/src/main.rs`, register stdlib factories with `YamlSchemaSource` on startup.
+- [x] Update `examples/blog-site/schemas/blog-post.yaml` to use all four rules per SPEC.md §Schema File Format.
+- [x] Update the golden test fixtures so body-rule violations are exercised.
+- [x] Verify: golden tests pass; broken fixtures trigger the expected rule ids.
 
 ---
 

@@ -21,5 +21,12 @@ frontmatter:
     draft:
       type: boolean
 
-# Body rules will be wired up in Phase 3.
-body: []
+body:
+  - rule: forbid-h1
+  - rule: required-sections
+    sections: [Summary]
+  - rule: section-order
+    order: [Summary, Background, Details, Conclusion]
+    mode: relaxed
+  - rule: forbidden-sections
+    sections: [TODO, Scratch]
