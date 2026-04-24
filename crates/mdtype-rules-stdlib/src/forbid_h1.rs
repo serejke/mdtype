@@ -59,7 +59,10 @@ mod tests {
 
     use super::{Rule, ID};
 
-    fn doc_for<'a>(arena: &'a Arena<mdtype_core::nodes::AstNode<'a>>, body: &str) -> ParsedDocument<'a> {
+    fn doc_for<'a>(
+        arena: &'a Arena<mdtype_core::nodes::AstNode<'a>>,
+        body: &str,
+    ) -> ParsedDocument<'a> {
         let ast = comrak::parse_document(arena, body, &comrak::Options::default());
         ParsedDocument {
             path: PathBuf::from("fixture.md"),
@@ -82,7 +85,11 @@ mod tests {
         let d = &diags[0];
         assert_eq!(d.rule, ID);
         assert_eq!(d.line, Some(3));
-        assert!(d.message.contains("H1"), "message should mention H1: {}", d.message);
+        assert!(
+            d.message.contains("H1"),
+            "message should mention H1: {}",
+            d.message
+        );
     }
 
     #[test]

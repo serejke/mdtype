@@ -185,9 +185,9 @@ Goal: the composable story made concrete.
 
 ### 6.1 Lint & format sweep
 
-- [ ] `cargo fmt --all --check` clean.
-- [ ] `cargo clippy --all-targets --all-features -- -D warnings` clean.
-- [ ] `cargo test --workspace` clean.
+- [x] `cargo fmt --all --check` clean.
+- [x] `cargo clippy --all-targets --all-features -- -D warnings` clean.
+- [x] `cargo test --workspace` clean.
 
 ### 6.2 Full run verification
 

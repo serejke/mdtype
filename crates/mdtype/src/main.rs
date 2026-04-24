@@ -219,8 +219,8 @@ fn build_mode(
     let entries_offset = schemas.len();
     let mut builder = GlobSetBuilder::new();
     for entry in entries {
-        let glob = Glob::new(&entry.glob)
-            .with_context(|| format!("invalid glob '{}'", entry.glob))?;
+        let glob =
+            Glob::new(&entry.glob).with_context(|| format!("invalid glob '{}'", entry.glob))?;
         builder.add(glob);
         schemas.push(entry.schema);
     }

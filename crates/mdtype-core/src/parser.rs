@@ -61,10 +61,7 @@ pub fn parse_file<'a>(
 ///
 /// `body_line_offset` is the 1-indexed line number of the first body line in the original
 /// source — i.e., the line after the closing `---`. `1` when there is no frontmatter block.
-fn split_frontmatter(
-    raw: &str,
-    path: &Path,
-) -> Result<(serde_json::Value, String, usize), Error> {
+fn split_frontmatter(raw: &str, path: &Path) -> Result<(serde_json::Value, String, usize), Error> {
     let mut iter = raw.split_inclusive('\n');
     let Some(first) = iter.next() else {
         return Ok((serde_json::Value::Null, String::new(), 1));

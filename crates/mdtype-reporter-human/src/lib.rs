@@ -83,10 +83,7 @@ impl HumanReporter {
     }
 
     fn write_diagnostic(&self, out: &mut dyn Write, d: &Diagnostic) -> io::Result<()> {
-        let location = d
-            .line
-            .map(|l| format!("line {l}: "))
-            .unwrap_or_default();
+        let location = d.line.map(|l| format!("line {l}: ")).unwrap_or_default();
         if self.color {
             let label = match d.severity {
                 Severity::Error => severity_label(d.severity).red().bold().to_string(),
@@ -214,6 +211,10 @@ mod tests {
             warnings: 0,
         };
         reporter.report(&[], &summary, &mut buf).expect("report");
-        assert!(buf.is_empty(), "expected silent clean run, got {:?}", String::from_utf8_lossy(&buf));
+        assert!(
+            buf.is_empty(),
+            "expected silent clean run, got {:?}",
+            String::from_utf8_lossy(&buf)
+        );
     }
 }

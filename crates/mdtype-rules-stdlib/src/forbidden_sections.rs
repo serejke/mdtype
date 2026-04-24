@@ -91,7 +91,10 @@ mod tests {
 
     use super::{Factory, Rule, ID};
 
-    fn doc_for<'a>(arena: &'a Arena<mdtype_core::nodes::AstNode<'a>>, body: &str) -> ParsedDocument<'a> {
+    fn doc_for<'a>(
+        arena: &'a Arena<mdtype_core::nodes::AstNode<'a>>,
+        body: &str,
+    ) -> ParsedDocument<'a> {
         let ast = comrak::parse_document(arena, body, &comrak::Options::default());
         ParsedDocument {
             path: PathBuf::from("fixture.md"),
@@ -157,7 +160,10 @@ mod tests {
         };
         let mut diags = Vec::new();
         rule.check(&doc, &mut diags);
-        assert!(diags.is_empty(), "H1 should not match the H2-only forbidden list: {diags:?}");
+        assert!(
+            diags.is_empty(),
+            "H1 should not match the H2-only forbidden list: {diags:?}"
+        );
     }
 
     #[test]

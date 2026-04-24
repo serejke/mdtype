@@ -231,9 +231,7 @@ mod tests {
     use std::fs;
     use std::sync::Arc;
 
-    use mdtype_core::{
-        BodyRule, BodyRuleFactory, Diagnostic, Error, ParsedDocument, SchemaSource,
-    };
+    use mdtype_core::{BodyRule, BodyRuleFactory, Diagnostic, Error, ParsedDocument, SchemaSource};
     use tempfile::tempdir;
 
     use super::{config_walk_up, load_schema_file, YamlSchemaSource, CONFIG_FILE_NAME};
@@ -277,8 +275,7 @@ mod tests {
         )
         .unwrap();
 
-        let src =
-            YamlSchemaSource::new(dir.path().join(CONFIG_FILE_NAME), Arc::new(Vec::new()));
+        let src = YamlSchemaSource::new(dir.path().join(CONFIG_FILE_NAME), Arc::new(Vec::new()));
         let entries = src.load().expect("load");
 
         assert_eq!(entries.len(), 1);
@@ -286,7 +283,11 @@ mod tests {
         assert_eq!(entry.glob, "posts/**/*.md");
         assert_eq!(entry.schema.name, "blog-post");
         assert_eq!(entry.schema.description.as_deref(), Some("A post."));
-        let fm = entry.schema.frontmatter.as_ref().expect("frontmatter present");
+        let fm = entry
+            .schema
+            .frontmatter
+            .as_ref()
+            .expect("frontmatter present");
         assert_eq!(fm["type"], serde_json::json!("object"));
         assert_eq!(fm["required"], serde_json::json!(["title"]));
         assert!(entry.schema.body.is_empty());

@@ -10,7 +10,9 @@ fn run_blog_site(extra: &[&str]) -> Output {
     let bin = env!("CARGO_BIN_EXE_mdtype");
     let workspace_root = workspace_root();
     let mut cmd = Command::new(bin);
-    cmd.current_dir(&workspace_root).args(extra).arg("examples/blog-site/");
+    cmd.current_dir(&workspace_root)
+        .args(extra)
+        .arg("examples/blog-site/");
     cmd.output().expect("spawn mdtype")
 }
 

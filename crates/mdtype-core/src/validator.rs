@@ -122,7 +122,10 @@ mod tests {
         };
 
         let diagnostics = CoreValidator.validate(&doc, &schema);
-        assert!(diagnostics.is_empty(), "expected zero diagnostics, got {diagnostics:?}");
+        assert!(
+            diagnostics.is_empty(),
+            "expected zero diagnostics, got {diagnostics:?}"
+        );
     }
 
     #[test]
@@ -146,10 +149,18 @@ mod tests {
         };
 
         let diagnostics = CoreValidator.validate(&doc, &schema);
-        assert_eq!(diagnostics.len(), 1, "expected one diagnostic, got {diagnostics:?}");
+        assert_eq!(
+            diagnostics.len(),
+            1,
+            "expected one diagnostic, got {diagnostics:?}"
+        );
         let d = &diagnostics[0];
         assert_eq!(d.rule, FRONTMATTER_RULE_ID);
         assert!(d.line.is_none());
-        assert!(d.message.contains("author"), "message should mention the missing field: {}", d.message);
+        assert!(
+            d.message.contains("author"),
+            "message should mention the missing field: {}",
+            d.message
+        );
     }
 }
