@@ -138,10 +138,10 @@ Goal: stable machine-readable output + documentation showing how to wire mdtype 
 
 ### 4.1 `mdtype-reporter-json`
 
-- [ ] Define serde-serializable wire types that mirror SPEC.md §JSON Output Contract exactly.
-- [ ] Implement `JsonReporter` emitting pretty-printed JSON when stdout is a tty, compact otherwise.
-- [ ] Include `version: "1"` unconditionally.
-- [ ] Snapshot test with `insta` — this is the public contract.
+- [x] Define serde-serializable wire types that mirror SPEC.md §JSON Output Contract exactly.
+- [x] Implement `JsonReporter` emitting pretty-printed JSON when stdout is a tty, compact otherwise.
+- [x] Include `version: "1"` unconditionally.
+- [x] Snapshot test with `insta` — this is the public contract.
 
 ### 4.2 CLI `--format json`
 

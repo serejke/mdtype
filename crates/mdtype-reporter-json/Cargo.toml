@@ -14,3 +14,6 @@ workspace = true
 mdtype-core = { path = "../mdtype-core", version = "0.1.0" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }

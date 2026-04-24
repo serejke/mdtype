@@ -871,6 +871,7 @@ dependencies = [
 name = "mdtype-reporter-json"
 version = "0.1.0"
 dependencies = [
+ "insta",
  "mdtype-core",
  "serde",
  "serde_json",

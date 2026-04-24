@@ -1,0 +1,5 @@
+---
+source: crates/mdtype-reporter-json/src/lib.rs
+expression: out
+---
+{"version":"1","summary":{"files_scanned":4,"files_with_errors":2,"errors":2,"warnings":0},"diagnostics":[{"file":"content/posts/hello.md","line":null,"rule":"frontmatter.schema","severity":"error","message":"missing required field 'author'","fixit":{"kind":"AddFrontmatterField","field":"author","hint":"string"}},{"file":"content/posts/stray.md","line":7,"rule":"body.forbid_h1","severity":"error","message":"top-level H1 is not allowed","fixit":{"kind":"DeleteLine","line":7}}]}

@@ -1,0 +1,14 @@
+---
+source: crates/mdtype-reporter-json/src/lib.rs
+expression: out
+---
+{
+  "version": "1",
+  "summary": {
+    "files_scanned": 7,
+    "files_with_errors": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "diagnostics": []
+}
