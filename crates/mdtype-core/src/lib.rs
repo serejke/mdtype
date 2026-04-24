@@ -21,4 +21,8 @@ pub use parser::{parse_file, ParsedDocument};
 pub use rule::{BodyRule, BodyRuleFactory};
 pub use schema::Schema;
 pub use source::{SchemaEntry, SchemaSource};
-pub use validator::{CoreValidator, Reporter, Validator};
+pub use validator::{CoreValidator, Reporter, Validator, FRONTMATTER_RULE_ID};
+
+// Re-export the Markdown arena type so downstream callers do not need a direct
+// dependency on `comrak` to allocate the AST `parse_file` returns.
+pub use comrak::Arena;

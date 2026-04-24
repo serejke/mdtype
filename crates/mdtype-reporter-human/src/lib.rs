@@ -64,10 +64,9 @@ impl Reporter for HumanReporter {
             self.write_diagnostic(out, d)?;
         }
 
-        if !self.quiet {
-            if !diagnostics.is_empty() {
-                writeln!(out)?;
-            }
+        // Unix-style: silent on success. The summary line trails a non-empty diagnostic list.
+        if !self.quiet && !diagnostics.is_empty() {
+            writeln!(out)?;
             Self::write_summary(out, summary)?;
         }
         Ok(())
@@ -111,24 +110,16 @@ impl HumanReporter {
     }
 
     fn write_summary(out: &mut dyn Write, summary: &Summary) -> io::Result<()> {
-        let files_word = pluralize(summary.files_scanned, "file", "files");
-        if summary.errors == 0 && summary.warnings == 0 {
-            writeln!(
-                out,
-                "mdtype: clean ({} {files_word} scanned)",
-                summary.files_scanned
-            )
-        } else {
-            writeln!(
-                out,
-                "mdtype: {} {} across {} {} ({} {files_word} scanned)",
-                summary.errors,
-                pluralize(summary.errors, "error", "errors"),
-                summary.files_with_errors,
-                pluralize(summary.files_with_errors, "file", "files"),
-                summary.files_scanned,
-            )
-        }
+        writeln!(
+            out,
+            "mdtype: {} {} across {} {} ({} {} scanned)",
+            summary.errors,
+            pluralize(summary.errors, "error", "errors"),
+            summary.files_with_errors,
+            pluralize(summary.files_with_errors, "file", "files"),
+            summary.files_scanned,
+            pluralize(summary.files_scanned, "file", "files"),
+        )
     }
 }
 
@@ -213,7 +204,7 @@ mod tests {
     }
 
     #[test]
-    fn clean_run_summary() {
+    fn clean_run_is_silent() {
         let reporter = HumanReporter::new(false);
         let mut buf: Vec<u8> = Vec::new();
         let summary = Summary {
@@ -223,6 +214,6 @@ mod tests {
             warnings: 0,
         };
         reporter.report(&[], &summary, &mut buf).expect("report");
-        insta::assert_snapshot!(String::from_utf8(buf).expect("utf-8"));
+        assert!(buf.is_empty(), "expected silent clean run, got {:?}", String::from_utf8_lossy(&buf));
     }
 }

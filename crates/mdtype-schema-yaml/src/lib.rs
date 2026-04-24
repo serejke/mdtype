@@ -100,7 +100,17 @@ pub fn config_walk_up(start: &Path) -> Option<PathBuf> {
     }
 }
 
-fn load_schema_file(path: &Path) -> Result<Schema, Error> {
+/// Load a single schema YAML file off disk and parse it into [`Schema`].
+///
+/// Body rules are deliberately left empty until Phase 3.1 wires the factory registry through.
+/// Used both internally by [`YamlSchemaSource::load`] and by the CLI when a per-file
+/// `schema:` frontmatter override needs to load a one-off schema.
+///
+/// # Errors
+///
+/// Returns [`Error::Io`] if `path` cannot be read and [`Error::Schema`] if the YAML is
+/// malformed or the frontmatter section cannot be converted to a JSON value.
+pub fn load_schema_file(path: &Path) -> Result<Schema, Error> {
     let raw = fs::read_to_string(path).map_err(|source| Error::Io {
         path: path.to_path_buf(),
         source,

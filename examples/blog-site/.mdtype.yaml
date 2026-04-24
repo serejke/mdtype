@@ -1,0 +1,3 @@
+rules:
+  - glob: "content/posts/**/*.md"
+    schema: schemas/blog-post.yaml

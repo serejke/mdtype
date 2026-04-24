@@ -68,8 +68,8 @@ Goal: `mdtype` runs against real files, validates frontmatter only, prints a hum
 
 ### 2.3 CLI plumbing
 
-- [ ] Define clap args in `crates/mdtype/src/main.rs` matching SPEC.md §CLI exactly.
-- [ ] Implement the pipeline:
+- [x] Define clap args in `crates/mdtype/src/main.rs` matching SPEC.md §CLI exactly.
+- [x] Implement the pipeline:
   1. Load config (explicit `--config` or walk-up).
   2. Construct `YamlSchemaSource`, call `load()`.
   3. Walk PATHS, collect `.md` files.
@@ -77,8 +77,8 @@ Goal: `mdtype` runs against real files, validates frontmatter only, prints a hum
   5. Parse the file, run `CoreValidator`.
   6. Feed all diagnostics into the selected reporter.
   7. Exit 0/1/2 per the spec.
-- [ ] Implement per-file `schema:` override lookup.
-- [ ] Verify: `cargo run -p mdtype -- examples/blog-site/content/posts/2026-01-hello-world.md` exits 0 and prints nothing.
+- [x] Implement per-file `schema:` override lookup.
+- [x] Verify: `cargo run -p mdtype -- examples/blog-site/content/posts/2026-01-hello-world.md` exits 0 and prints nothing.
 
 ### 2.4 End-to-end smoke test
 

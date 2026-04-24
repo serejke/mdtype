@@ -834,11 +834,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "globset",
  "mdtype-core",
  "mdtype-reporter-human",
  "mdtype-reporter-json",
  "mdtype-rules-stdlib",
  "mdtype-schema-yaml",
+ "serde_json",
 ]
 
 [[package]]

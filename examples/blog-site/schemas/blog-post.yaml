@@ -1,0 +1,25 @@
+name: blog-post
+description: A blog post under content/posts/.
+
+frontmatter:
+  type: object
+  required: [title, date, tags, author]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+      minLength: 1
+    date:
+      type: string
+      format: date
+    tags:
+      type: array
+      items: { type: string }
+      minItems: 1
+    author:
+      type: string
+    draft:
+      type: boolean
+
+# Body rules will be wired up in Phase 3.
+body: []
