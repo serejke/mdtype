@@ -27,13 +27,13 @@ Goal: a compiling Cargo workspace with all six crates, trait signatures defined,
 
 ### 1.3 Parser module in `mdtype-core`
 
-- [ ] Implement `parse_file(path: &Path) -> Result<ParsedDocument, Error>`:
+- [x] Implement `parse_file(path: &Path) -> Result<ParsedDocument, Error>`:
   - Split the YAML frontmatter (between `---` fences at top) from the body.
   - Parse frontmatter with `serde_yaml` into `serde_json::Value`.
   - Parse body with `comrak` into an AST.
-- [ ] Record 1-indexed line offset of the body start so rule diagnostics can report absolute line numbers.
-- [ ] Unit test: a fixture with frontmatter and a fixture without; both parse.
-- [ ] Verify: `cargo test -p mdtype-core` passes.
+- [x] Record 1-indexed line offset of the body start so rule diagnostics can report absolute line numbers.
+- [x] Unit test: a fixture with frontmatter and a fixture without; both parse.
+- [x] Verify: `cargo test -p mdtype-core` passes.
 
 ### 1.4 Default `CoreValidator`
 
