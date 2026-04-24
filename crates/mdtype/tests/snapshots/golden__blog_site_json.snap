@@ -1,0 +1,34 @@
+---
+source: crates/mdtype/tests/golden.rs
+expression: pretty
+---
+{
+  "diagnostics": [
+    {
+      "file": "examples/blog-site/content/posts/2026-02-missing-author.md",
+      "fixit": null,
+      "line": null,
+      "message": "\"author\" is a required property",
+      "rule": "frontmatter.schema",
+      "severity": "error"
+    },
+    {
+      "file": "examples/blog-site/content/posts/2026-03-stray-h1.md",
+      "fixit": {
+        "kind": "DeleteLine",
+        "line": 8
+      },
+      "line": 8,
+      "message": "top-level H1 is not allowed",
+      "rule": "body.forbid_h1",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 2,
+    "files_scanned": 4,
+    "files_with_errors": 2,
+    "warnings": 0
+  },
+  "version": "1"
+}

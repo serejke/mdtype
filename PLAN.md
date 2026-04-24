@@ -145,9 +145,9 @@ Goal: stable machine-readable output + documentation showing how to wire mdtype 
 
 ### 4.2 CLI `--format json`
 
-- [ ] Wire `--format json` to select `JsonReporter`.
-- [ ] Default format: `human` if stdout is a tty, else `json`.
-- [ ] Golden test: `mdtype --format json examples/blog-site/` matches a pinned snapshot.
+- [x] Wire `--format json` to select `JsonReporter`.
+- [x] Default format: `human` if stdout is a tty, else `json`.
+- [x] Golden test: `mdtype --format json examples/blog-site/` matches a pinned snapshot.
 
 ### 4.3 Docs: JSON contract + hooks
 

@@ -345,16 +345,19 @@ fn write_report(cli: &Cli, diagnostics: &[Diagnostic], summary: &Summary) -> any
     let stdout_is_tty = io::stdout().is_terminal();
     let mut stdout = io::stdout().lock();
 
-    // Until Phase 4.1 wires up the real JSON reporter, Auto always resolves to Human so the
-    // CLI is usable in non-tty contexts (cargo run, CI). Explicit `--format json` will fail
-    // loudly when called against the still-stubbed JsonReporter.
     let format = match cli.format {
-        Format::Auto => Format::Human,
+        Format::Auto => {
+            if stdout_is_tty {
+                Format::Human
+            } else {
+                Format::Json
+            }
+        }
         f => f,
     };
 
     match format {
-        Format::Human | Format::Auto => {
+        Format::Human => {
             let color = !cli.no_color && stdout_is_tty;
             let reporter = HumanReporter::new(color).with_quiet(cli.quiet);
             reporter
@@ -367,6 +370,7 @@ fn write_report(cli: &Cli, diagnostics: &[Diagnostic], summary: &Summary) -> any
                 .report(diagnostics, summary, &mut stdout)
                 .context("writing json report")?;
         }
+        Format::Auto => unreachable!("resolved above"),
     }
     Ok(())
 }
