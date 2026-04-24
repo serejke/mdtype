@@ -208,6 +208,61 @@ Goal: the composable story made concrete.
 
 ---
 
+## Phase 7: End-to-End Fixture Matrix
+
+Goal: a comprehensive, folder-structured fixture suite that exercises the full CLI pipeline (config discovery → schema load → parse → validate → report → exit) with golden snapshots pinning both stdout and exit codes for every supported scenario. Phase 2.4 covers the MVP smoke test; Phase 7 is the full safety net before release.
+
+### 7.1 Fixture layout
+
+- [ ] Establish `tests/fixtures/<scenario>/` as the canonical home for end-to-end fixtures. Each scenario is a self-contained mini-project: its own `.mdtype.yaml`, `schemas/`, `content/`, and a sibling `expected/` directory holding `stdout.human`, `stdout.json`, `exit_code` (and optional `stderr`).
+- [ ] Document the fixture contract in `tests/fixtures/README.md`: required files, naming conventions, how to add a new scenario, how to regenerate goldens (`INSTA_UPDATE=always` or a `just regenerate-fixtures` target).
+
+### 7.2 Configuration scenarios
+
+- [ ] `tests/fixtures/config-missing/` — directory with no `.mdtype.yaml`. Expected exit `2`.
+- [ ] `tests/fixtures/config-malformed/` — `.mdtype.yaml` with invalid YAML. Expected exit `2`.
+- [ ] `tests/fixtures/config-unknown-rule/` — schema references a body-rule id not present in the registry. Expected exit `2`.
+- [ ] `tests/fixtures/config-walk-up/<deep>/<dir>/` — file deep in a tree; verifies config discovery actually walks upward via the CLI, not just the unit-tested helper.
+- [ ] `tests/fixtures/config-explicit/` — invocation with `--config` overriding walk-up; pin both the picked config and the produced output.
+
+### 7.3 Frontmatter scenarios
+
+- [ ] `tests/fixtures/frontmatter-clean/` — every file matches its schema. Expected exit `0`; empty diagnostics list; summary snapshot.
+- [ ] `tests/fixtures/frontmatter-missing-required/` — files missing one or more required fields. Expected exit `1`; one diagnostic per missing field.
+- [ ] `tests/fixtures/frontmatter-wrong-type/` — type-mismatched fields (e.g. `tags: "single"` where an array is required).
+- [ ] `tests/fixtures/frontmatter-additional-properties/` — schema with `additionalProperties: false` and a file carrying an extra field.
+- [ ] `tests/fixtures/frontmatter-absent/` — files with no leading `---` block where the schema declares frontmatter required.
+- [ ] `tests/fixtures/frontmatter-malformed/` — leading `---` opened but never closed; expected exit `1` with a `frontmatter` diagnostic.
+
+### 7.4 Body-rule scenarios
+
+- [ ] `tests/fixtures/body-forbid-h1/` — clean + broken pair (file with a stray `# H1`).
+- [ ] `tests/fixtures/body-required-sections/` — clean, one-missing, all-missing.
+- [ ] `tests/fixtures/body-section-order-strict/` — correct order, inverted, extra-between, missing.
+- [ ] `tests/fixtures/body-section-order-relaxed/` — same matrix; verifies extras are tolerated.
+- [ ] `tests/fixtures/body-forbidden-sections/` — clean + broken pair.
+- [ ] `tests/fixtures/multi-rule/` — a single file violating multiple body rules at once; verifies stable `(file, line, rule)` ordering.
+
+### 7.5 Glob, override, and selection scenarios
+
+- [ ] `tests/fixtures/per-file-schema-override/` — file with `schema:` in its frontmatter pointing at a non-default schema; verifies replacement (not merge) semantics.
+- [ ] `tests/fixtures/glob-precedence/` — multiple glob entries where one file matches more than one; pins the documented precedence rule.
+- [ ] `tests/fixtures/non-md-files/` — `.txt`, `.png`, `.html` mixed alongside `.md`; verifies only `.md` enters the pipeline.
+- [ ] `tests/fixtures/empty-tree/` — directory with no `.md` files at all; expected exit `0` with a "0 files scanned" summary.
+
+### 7.6 Reporter parity
+
+- [ ] For every scenario above, snapshot **both** the human (`--no-color`) and JSON (`--format json`) outputs side by side. Both reporters consume the same diagnostic list, so divergence is a regression in exactly one of them.
+- [ ] Golden runner asserts exit code, stdout snapshot, and stderr emptiness (or stderr snapshot when an error path is expected).
+
+### 7.7 Test harness
+
+- [ ] In `tests/golden/main.rs`, implement one parameterized harness that walks `tests/fixtures/`, runs the built `mdtype` binary against each scenario with a fixed cwd, and asserts the per-scenario goldens. Adding a new scenario requires only a new fixture folder plus its `expected/` files — no Rust changes.
+- [ ] Use `assert_cmd` (or `escargot` to locate the workspace binary) so the harness exercises the real CLI surface, not an in-process call.
+- [ ] Verify: `cargo test --workspace` passes; deliberately corrupting any scenario fixture fails its snapshot with a clear diff and the correct exit-code mismatch.
+
+---
+
 ## Appendix: Session Discipline
 
 - Always read `CLAUDE.md` before starting a session.
