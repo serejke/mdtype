@@ -199,7 +199,7 @@ Goal: the composable story made concrete.
 
 ### 6.3 Acceptance checklist from SPEC.md
 
-- [ ] Walk SPEC.md §Acceptance Criteria for v1 and tick each item.
+- [x] Walk SPEC.md §Acceptance Criteria for v1 and tick each item.
 
 ### 6.4 CI
 
