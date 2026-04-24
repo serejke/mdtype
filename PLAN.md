@@ -165,7 +165,7 @@ Goal: the composable story made concrete.
 
 ### 5.1 `docs/schema.md`
 
-- [ ] Document every field in the schema file format (name, description, frontmatter, body). Include a full working example. Link to the JSON Schema 2020-12 spec for frontmatter.
+- [x] Document every field in the schema file format (name, description, frontmatter, body). Include a full working example. Link to the JSON Schema 2020-12 spec for frontmatter.
 
 ### 5.2 `docs/extending.md`
 
