@@ -203,8 +203,8 @@ Goal: the composable story made concrete.
 
 ### 6.4 CI
 
-- [ ] Add `.github/workflows/ci.yml` running `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test --workspace` on push and PR.
-- [ ] Verify: CI green on an empty PR.
+- [x] Add `.github/workflows/ci.yml` running `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test --workspace` on push and PR.
+- [ ] Verify: CI green on an empty PR. _(deferred — requires the user to push and observe the GitHub Actions run.)_
 
 ---
 
