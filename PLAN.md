@@ -82,9 +82,9 @@ Goal: `mdtype` runs against real files, validates frontmatter only, prints a hum
 
 ### 2.4 End-to-end smoke test
 
-- [ ] Create `examples/blog-site/` with `.mdtype.yaml`, `schemas/blog-post.yaml`, and the three fixture posts from SPEC.md §Example Domain. Body rules in the schema can be an empty list for now.
-- [ ] Create a golden test in `tests/golden/` that runs the CLI over `examples/blog-site/`, captures stdout+exit, compares via `insta`.
-- [ ] Verify: `cargo test` passes; frontmatter violations are detected end-to-end.
+- [x] Create `examples/blog-site/` with `.mdtype.yaml`, `schemas/blog-post.yaml`, and the three fixture posts from SPEC.md §Example Domain. Body rules in the schema can be an empty list for now.
+- [x] Create a golden test in `tests/golden/` that runs the CLI over `examples/blog-site/`, captures stdout+exit, compares via `insta`.
+- [x] Verify: `cargo test` passes; frontmatter violations are detected end-to-end.
 
 ---
 

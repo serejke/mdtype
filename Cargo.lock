@@ -835,6 +835,7 @@ dependencies = [
  "anyhow",
  "clap",
  "globset",
+ "insta",
  "mdtype-core",
  "mdtype-reporter-human",
  "mdtype-reporter-json",

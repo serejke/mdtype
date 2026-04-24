@@ -1,0 +1,8 @@
+---
+source: crates/mdtype/tests/golden.rs
+expression: stdout
+---
+examples/blog-site/content/posts/2026-02-missing-author.md
+  error[frontmatter.schema] "author" is a required property
+
+mdtype: 1 error across 1 file (4 files scanned)

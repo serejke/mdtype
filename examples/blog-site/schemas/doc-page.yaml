@@ -1,0 +1,16 @@
+name: doc-page
+description: A documentation page under content/docs/.
+
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+      minLength: 1
+    description:
+      type: string
+
+# Body rules will be wired up in Phase 3.
+body: []

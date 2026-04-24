@@ -24,3 +24,6 @@ clap = { workspace = true }
 anyhow = { workspace = true }
 globset = { workspace = true }
 serde_json = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }

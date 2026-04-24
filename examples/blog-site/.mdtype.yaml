@@ -1,3 +1,5 @@
 rules:
   - glob: "content/posts/**/*.md"
     schema: schemas/blog-post.yaml
+  - glob: "content/docs/**/*.md"
+    schema: schemas/doc-page.yaml
