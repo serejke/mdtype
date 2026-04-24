@@ -176,8 +176,8 @@ Goal: the composable story made concrete.
 
 ### 5.3 README
 
-- [ ] One-screen overview. One runnable example. Link to `docs/`. No marketing, no emojis, no screenshots.
-- [ ] Verify: README fits in ~80 lines.
+- [x] One-screen overview. One runnable example. Link to `docs/`. No marketing, no emojis, no screenshots.
+- [x] Verify: README fits in ~80 lines.
 
 ---
 
