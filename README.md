@@ -56,6 +56,16 @@ Exit codes: `0` clean, `1` violations, `2` config error.
 
 `--format json` (the default in non-tty contexts) emits the versioned contract documented in [`docs/json-schema.md`](docs/json-schema.md). Use `mdtype --help` for the full flag table.
 
+## Agent skill
+
+Bootstrap mdtype in any project with one command — the skill writes `.mdtype.yaml` + a starter schema, registers mdtype with the agent's instruction file (`CLAUDE.md` / `AGENTS.md`), and offers to install the hooks below:
+
+```sh
+npx skills add serejke/mdtype --skill setup-mdtype
+```
+
+Then invoke `/setup-mdtype` from inside the agent. Works with Claude Code, Codex, Cursor, and the other agents the [`npx skills`](https://github.com/vercel-labs/skills) CLI supports. See [`skills/README.md`](skills/README.md) for per-agent install paths and the skill's full instructions.
+
 ## Hooks
 
 Drop-in scripts at [`hooks/`](hooks/):

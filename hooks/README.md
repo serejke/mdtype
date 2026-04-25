@@ -2,6 +2,8 @@
 
 Drop-in scripts so `mdtype` blocks bad Markdown before it ships.
 
+> Setting mdtype up in a fresh project? The [`setup-mdtype`](../skills/setup-mdtype/SKILL.md) agent skill (`npx skills add serejke/mdtype --skill setup-mdtype`) writes the config + schema and offers to install both hooks below in one go.
+
 | Script             | Purpose                                                                                                                                       |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pre-commit`       | Git pre-commit hook — validates every staged `.md` before the commit lands.                                                                   |

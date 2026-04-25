@@ -2,6 +2,8 @@
 
 `mdtype` is a single binary with stable exit codes and a versioned JSON output, so it slots into any pipeline that can run a command and check `$?`. Three common shapes:
 
+> If you want all three at once in a fresh project, install the [`setup-mdtype`](../skills/setup-mdtype/SKILL.md) agent skill (`npx skills add serejke/mdtype --skill setup-mdtype`) — it writes the config, registers mdtype with `CLAUDE.md`/`AGENTS.md`, and offers to install the hooks below.
+
 ## 1. Pre-commit hook
 
 The repo ships a ready-to-install hook at [`hooks/pre-commit`](../hooks/pre-commit) plus a one-shot installer.
