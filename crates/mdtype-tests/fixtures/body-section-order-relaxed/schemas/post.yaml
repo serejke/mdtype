@@ -1,0 +1,13 @@
+name: post
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+
+body:
+  - rule: section-order
+    order: [Alpha, Beta, Gamma]
+    mode: relaxed

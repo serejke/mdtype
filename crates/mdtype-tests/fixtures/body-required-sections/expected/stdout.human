@@ -1,0 +1,8 @@
+./content/all-missing.md
+  error[body.required_sections] missing required section 'Summary'
+  error[body.required_sections] missing required section 'Conclusion'
+
+./content/missing-conclusion.md
+  error[body.required_sections] missing required section 'Conclusion'
+
+mdtype: 3 errors across 2 files (3 files scanned)

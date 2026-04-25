@@ -246,11 +246,11 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.6 Body-rule scenarios
 
-- [ ] `body-required-sections/` — clean / one-missing / all-missing triple.
-- [ ] `body-section-order-strict/` — correct / inverted / extra-between / missing.
-- [ ] `body-section-order-relaxed/` — same matrix; extras tolerated.
-- [ ] `body-forbidden-sections/` — clean + broken pair.
-- [ ] `multi-rule/` — one file violating multiple rules; verifies stable `(file, line, rule)` ordering.
+- [x] `body-required-sections/` — clean / one-missing / all-missing triple.
+- [x] `body-section-order-strict/` — correct / inverted / extra-between / missing.
+- [x] `body-section-order-relaxed/` — same matrix; extras tolerated.
+- [x] `body-forbidden-sections/` — clean + broken pair.
+- [x] `multi-rule/` — one file violating multiple rules; verifies stable `(file, line, rule)` ordering.
 
 ### 7.7 Selection scenarios
 

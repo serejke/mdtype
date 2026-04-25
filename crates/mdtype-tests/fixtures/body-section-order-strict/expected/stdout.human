@@ -1,0 +1,10 @@
+./content/extra-between.md
+  error[body.section_order] line 9: unexpected section 'Aside' between required sections (strict mode)
+
+./content/inverted.md
+  error[body.section_order] line 9: section 'Alpha' is out of order: should appear before 'Beta'
+
+./content/missing.md
+  error[body.section_order] missing required section 'Beta'
+
+mdtype: 3 errors across 3 files (4 files scanned)

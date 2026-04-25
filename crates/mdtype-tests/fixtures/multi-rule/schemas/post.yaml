@@ -1,0 +1,15 @@
+name: post
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+
+body:
+  - rule: forbid-h1
+  - rule: required-sections
+    sections: [Summary]
+  - rule: forbidden-sections
+    sections: [TODO]

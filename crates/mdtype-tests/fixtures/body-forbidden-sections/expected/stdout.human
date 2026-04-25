@@ -1,0 +1,4 @@
+./content/has-todo.md
+  error[body.forbidden_sections] line 9: forbidden section 'TODO'
+
+mdtype: 1 error across 1 file (2 files scanned)

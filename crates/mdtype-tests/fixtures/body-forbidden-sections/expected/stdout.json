@@ -1,0 +1,22 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/has-todo.md",
+      "fixit": {
+        "kind": "DeleteLine",
+        "line": 9
+      },
+      "line": 9,
+      "message": "forbidden section 'TODO'",
+      "rule": "body.forbidden_sections",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 1,
+    "files_scanned": 2,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

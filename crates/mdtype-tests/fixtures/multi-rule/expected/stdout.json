@@ -1,0 +1,45 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/messy.md",
+      "fixit": {
+        "after": null,
+        "heading": "## Summary",
+        "kind": "AppendSection"
+      },
+      "line": null,
+      "message": "missing required section 'Summary'",
+      "rule": "body.required_sections",
+      "severity": "error"
+    },
+    {
+      "file": "./content/messy.md",
+      "fixit": {
+        "kind": "DeleteLine",
+        "line": 5
+      },
+      "line": 5,
+      "message": "top-level H1 is not allowed",
+      "rule": "body.forbid_h1",
+      "severity": "error"
+    },
+    {
+      "file": "./content/messy.md",
+      "fixit": {
+        "kind": "DeleteLine",
+        "line": 9
+      },
+      "line": 9,
+      "message": "forbidden section 'TODO'",
+      "rule": "body.forbidden_sections",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 3,
+    "files_scanned": 1,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

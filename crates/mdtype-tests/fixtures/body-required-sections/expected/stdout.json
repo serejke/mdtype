@@ -1,0 +1,47 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/all-missing.md",
+      "fixit": {
+        "after": null,
+        "heading": "## Summary",
+        "kind": "AppendSection"
+      },
+      "line": null,
+      "message": "missing required section 'Summary'",
+      "rule": "body.required_sections",
+      "severity": "error"
+    },
+    {
+      "file": "./content/all-missing.md",
+      "fixit": {
+        "after": null,
+        "heading": "## Conclusion",
+        "kind": "AppendSection"
+      },
+      "line": null,
+      "message": "missing required section 'Conclusion'",
+      "rule": "body.required_sections",
+      "severity": "error"
+    },
+    {
+      "file": "./content/missing-conclusion.md",
+      "fixit": {
+        "after": null,
+        "heading": "## Conclusion",
+        "kind": "AppendSection"
+      },
+      "line": null,
+      "message": "missing required section 'Conclusion'",
+      "rule": "body.required_sections",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 3,
+    "files_scanned": 3,
+    "files_with_errors": 2,
+    "warnings": 0
+  },
+  "version": "1"
+}

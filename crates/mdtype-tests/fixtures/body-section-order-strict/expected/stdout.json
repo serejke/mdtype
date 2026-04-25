@@ -1,0 +1,39 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/extra-between.md",
+      "fixit": null,
+      "line": 9,
+      "message": "unexpected section 'Aside' between required sections (strict mode)",
+      "rule": "body.section_order",
+      "severity": "error"
+    },
+    {
+      "file": "./content/inverted.md",
+      "fixit": null,
+      "line": 9,
+      "message": "section 'Alpha' is out of order: should appear before 'Beta'",
+      "rule": "body.section_order",
+      "severity": "error"
+    },
+    {
+      "file": "./content/missing.md",
+      "fixit": {
+        "after": null,
+        "heading": "## Beta",
+        "kind": "AppendSection"
+      },
+      "line": null,
+      "message": "missing required section 'Beta'",
+      "rule": "body.section_order",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 3,
+    "files_scanned": 4,
+    "files_with_errors": 3,
+    "warnings": 0
+  },
+  "version": "1"
+}
