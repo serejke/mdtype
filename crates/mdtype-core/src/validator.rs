@@ -83,11 +83,57 @@ impl Validator for CoreValidator {
 }
 
 fn format_schema_error(err: &jsonschema::ValidationError<'_>) -> String {
+    use jsonschema::error::{TypeKind, ValidationErrorKind};
+
     let path = err.instance_path.to_string();
-    if path.is_empty() {
-        err.to_string()
-    } else {
-        format!("{path}: {err}")
+    let path_or_root: &str = if path.is_empty() { "/" } else { &path };
+
+    match &err.kind {
+        ValidationErrorKind::Required { property } => {
+            let name = property.as_str().unwrap_or("<unknown>");
+            format!("missing required field '{name}'")
+        }
+        ValidationErrorKind::AdditionalProperties { unexpected } => {
+            let names = unexpected
+                .iter()
+                .map(|s| format!("'{s}'"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("unexpected field {names} (schema declares additionalProperties=false)")
+        }
+        ValidationErrorKind::Type { kind } => {
+            let expected = match kind {
+                TypeKind::Single(t) => format!("{t:?}").to_lowercase(),
+                TypeKind::Multiple(_) => "one of the declared types".to_string(),
+            };
+            let found = describe_value(&err.instance);
+            if path.is_empty() {
+                format!("frontmatter: expected {expected}, found {found}")
+            } else {
+                format!("field '{path_or_root}': expected {expected}, found {found}")
+            }
+        }
+        _ => {
+            // Fall through to jsonschema's own message, prefixed with the JSON pointer when known.
+            if path.is_empty() {
+                err.to_string()
+            } else {
+                format!("field '{path_or_root}': {err}")
+            }
+        }
+    }
+}
+
+/// One-word description of a JSON value used in type-mismatch error messages.
+fn describe_value(value: &serde_json::Value) -> String {
+    use serde_json::Value;
+    match value {
+        Value::Null => "null".into(),
+        Value::Bool(_) => "boolean".into(),
+        Value::Number(_) => "number".into(),
+        Value::String(s) => format!("\"{s}\""),
+        Value::Array(_) => "array".into(),
+        Value::Object(_) => "object".into(),
     }
 }
 

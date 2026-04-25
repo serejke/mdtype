@@ -6,6 +6,8 @@ use mdtype_core::nodes::{AstNode, NodeValue};
 use mdtype_core::{BodyRule, BodyRuleFactory, Diagnostic, Error, Fixit, ParsedDocument, Severity};
 use serde::Deserialize;
 
+use crate::heading_text;
+
 /// Rule id.
 pub const ID: &str = "body.required_sections";
 
@@ -29,7 +31,7 @@ impl BodyRule for Rule {
                     line: None,
                     rule: ID,
                     severity: Severity::Error,
-                    message: format!("missing required section '{required}'"),
+                    message: format!("missing H2 section '{required}'; add it as '## {required}'"),
                     fixit: Some(Fixit::AppendSection {
                         heading: format!("## {required}"),
                         after: None,
@@ -53,21 +55,6 @@ fn collect_h2_headings<'a>(root: &'a AstNode<'a>) -> HashSet<String> {
         out.insert(heading_text(node));
     }
     out
-}
-
-/// Concatenate the rendered text of a heading node's children. Strong/emphasis spans are
-/// flattened, fenced code spans contribute their literal, all other inlines are ignored.
-fn heading_text<'a>(heading: &'a AstNode<'a>) -> String {
-    let mut buf = String::new();
-    for desc in heading.descendants().skip(1) {
-        let data = desc.data.borrow();
-        match &data.value {
-            NodeValue::Text(t) => buf.push_str(t),
-            NodeValue::Code(c) => buf.push_str(&c.literal),
-            _ => {}
-        }
-    }
-    buf
 }
 
 /// Factory. Params shape: `{ sections: [String, ...] }`.

@@ -4,7 +4,7 @@
       "file": "./content/no-frontmatter.md",
       "fixit": null,
       "line": null,
-      "message": "null is not of type \"object\"",
+      "message": "frontmatter: expected object, found null",
       "rule": "frontmatter.schema",
       "severity": "error"
     }

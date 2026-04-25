@@ -24,12 +24,13 @@ impl BodyRule for Rule {
                 continue;
             }
             let absolute_line = data.sourcepos.start.line + doc.body_line_offset.saturating_sub(1);
+            let text = crate::heading_text(node);
             out.push(Diagnostic {
                 file: doc.path.clone(),
                 line: Some(absolute_line),
                 rule: ID,
                 severity: Severity::Error,
-                message: "top-level H1 is not allowed".into(),
+                message: format!("top-level heading '# {text}' is not allowed; use '## {text}' or rely on the file title"),
                 fixit: Some(mdtype_core::Fixit::DeleteLine {
                     line: absolute_line,
                 }),

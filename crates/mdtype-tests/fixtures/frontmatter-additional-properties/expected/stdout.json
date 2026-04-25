@@ -4,7 +4,7 @@
       "file": "./content/extra-field.md",
       "fixit": null,
       "line": null,
-      "message": "Additional properties are not allowed ('draft' was unexpected)",
+      "message": "unexpected field 'draft' (schema declares additionalProperties=false)",
       "rule": "frontmatter.schema",
       "severity": "error"
     }

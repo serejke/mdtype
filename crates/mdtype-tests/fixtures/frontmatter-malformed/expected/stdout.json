@@ -4,7 +4,7 @@
       "file": "./content/unclosed.md",
       "fixit": null,
       "line": null,
-      "message": "malformed frontmatter in ./content/unclosed.md: missing closing `---` fence",
+      "message": "frontmatter parse failed: missing closing `---` fence",
       "rule": "mdtype.parse",
       "severity": "error"
     }

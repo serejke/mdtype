@@ -8,7 +8,7 @@
         "kind": "AppendSection"
       },
       "line": null,
-      "message": "missing required section 'Summary'",
+      "message": "missing H2 section 'Summary'; add it as '## Summary'",
       "rule": "body.required_sections",
       "severity": "error"
     },
@@ -19,7 +19,7 @@
         "line": 5
       },
       "line": 5,
-      "message": "top-level H1 is not allowed",
+      "message": "top-level heading '# Stray H1 — body.forbid_h1' is not allowed; use '## Stray H1 — body.forbid_h1' or rely on the file title",
       "rule": "body.forbid_h1",
       "severity": "error"
     },
@@ -30,7 +30,7 @@
         "line": 9
       },
       "line": 9,
-      "message": "forbidden section 'TODO'",
+      "message": "H2 section 'TODO' is not allowed (forbidden by schema)",
       "rule": "body.forbidden_sections",
       "severity": "error"
     }

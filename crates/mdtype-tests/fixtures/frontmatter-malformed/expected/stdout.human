@@ -1,4 +1,4 @@
 ./content/unclosed.md
-  error[mdtype.parse] malformed frontmatter in ./content/unclosed.md: missing closing `---` fence
+  error[mdtype.parse] frontmatter parse failed: missing closing `---` fence
 
 mdtype: 1 error across 1 file (1 file scanned)

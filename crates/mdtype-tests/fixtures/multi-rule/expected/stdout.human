@@ -1,6 +1,6 @@
 ./content/messy.md
-  error[body.required_sections] missing required section 'Summary'
-  error[body.forbid_h1] line 5: top-level H1 is not allowed
-  error[body.forbidden_sections] line 9: forbidden section 'TODO'
+  error[body.required_sections] missing H2 section 'Summary'; add it as '## Summary'
+  error[body.forbid_h1] line 5: top-level heading '# Stray H1 — body.forbid_h1' is not allowed; use '## Stray H1 — body.forbid_h1' or rely on the file title
+  error[body.forbidden_sections] line 9: H2 section 'TODO' is not allowed (forbidden by schema)
 
 mdtype: 3 errors across 1 file (1 file scanned)

@@ -7,7 +7,7 @@
         "line": 9
       },
       "line": 9,
-      "message": "forbidden section 'TODO'",
+      "message": "H2 section 'TODO' is not allowed (forbidden by schema)",
       "rule": "body.forbidden_sections",
       "severity": "error"
     }

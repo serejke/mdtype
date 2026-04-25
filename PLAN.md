@@ -271,22 +271,22 @@ Goal: every diagnostic `message` is short, declarative, and structured enough fo
 
 ### 8.1 Style guide + audit
 
-- [ ] Write `docs/error-messages.md`: imperative voice, "expected X, found Y" shape where applicable, mention the offending value verbatim, no parenthetical aside, no Markdown.
-- [ ] Snapshot the current message text for every rule (one fixture per rule) so the rewrite is observable in diffs.
+- [x] Write `docs/error-messages.md`: imperative voice, "expected X, found Y" shape where applicable, mention the offending value verbatim, no parenthetical aside, no Markdown.
+- [x] Snapshot the current message text for every rule (one fixture per rule) so the rewrite is observable in diffs. _(Phase 7.x fixtures already snapshot every rule's current message; the rewrite in 8.2 will show as diffs in those goldens.)_
 
 ### 8.2 Rewrite each rule's messages
 
-- [ ] `frontmatter.schema` — surface the JSON pointer (`/author`) and the expected type/format. Replace `"\"X\" is a required property"` with `missing required field 'X' (expected string)` or similar.
-- [ ] `body.forbid_h1` — include the offending heading text: `top-level heading '# Stray H1' is not allowed; use '## Stray H1' or rely on the file title`.
-- [ ] `body.required_sections` — include the section name and the rule's expected level: `missing H2 section 'Summary'; add it as '## Summary'`.
-- [ ] `body.section_order` — include the offending and expected positions: `H2 section 'Background' appears at line N but should appear after 'Summary'`.
-- [ ] `body.forbidden_sections` — include the heading text and the policy: `H2 section 'TODO' is not allowed (forbidden by schema); remove the heading and its content`.
-- [ ] `mdtype.parse` — name the failure class up front: `frontmatter parse failed: missing closing '---' fence on line N`.
+- [x] `frontmatter.schema` — surface the JSON pointer (`/author`) and the expected type/format. Replace `"\"X\" is a required property"` with `missing required field 'X' (expected string)` or similar.
+- [x] `body.forbid_h1` — include the offending heading text: `top-level heading '# Stray H1' is not allowed; use '## Stray H1' or rely on the file title`.
+- [x] `body.required_sections` — include the section name and the rule's expected level: `missing H2 section 'Summary'; add it as '## Summary'`.
+- [x] `body.section_order` — include the offending and expected positions: `H2 section 'Background' appears at line N but should appear after 'Summary'`.
+- [x] `body.forbidden_sections` — include the heading text and the policy: `H2 section 'TODO' is not allowed (forbidden by schema); remove the heading and its content`.
+- [x] `mdtype.parse` — name the failure class up front: `frontmatter parse failed: missing closing '---' fence on line N`.
 
 ### 8.3 Verify
 
-- [ ] All snapshots updated; tests green.
-- [ ] Eyeball-test on examples/blog-site/: every diagnostic an agent could see is unambiguous about what to change.
+- [x] All snapshots updated; tests green.
+- [x] Eyeball-test on examples/blog-site/: every diagnostic an agent could see is unambiguous about what to change.
 
 ---
 

@@ -1,7 +1,7 @@
 ./content/inverted.md
-  error[body.section_order] line 9: section 'Alpha' is out of order: should appear before 'Beta'
+  error[body.section_order] line 9: H2 section 'Alpha' is out of order; should appear before 'Beta'
 
 ./content/missing.md
-  error[body.section_order] missing required section 'Beta'
+  error[body.section_order] missing H2 section 'Beta'; add it as '## Beta'
 
 mdtype: 2 errors across 2 files (4 files scanned)

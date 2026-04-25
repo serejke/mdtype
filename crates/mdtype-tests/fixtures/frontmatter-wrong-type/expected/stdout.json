@@ -4,7 +4,7 @@
       "file": "./content/scalar-tags.md",
       "fixit": null,
       "line": null,
-      "message": "/tags: \"just-one-string\" is not of type \"array\"",
+      "message": "field '/tags': expected array, found \"just-one-string\"",
       "rule": "frontmatter.schema",
       "severity": "error"
     }

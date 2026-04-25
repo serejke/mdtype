@@ -1,4 +1,4 @@
 ./content/extra-field.md
-  error[frontmatter.schema] Additional properties are not allowed ('draft' was unexpected)
+  error[frontmatter.schema] unexpected field 'draft' (schema declares additionalProperties=false)
 
 mdtype: 1 error across 1 file (1 file scanned)

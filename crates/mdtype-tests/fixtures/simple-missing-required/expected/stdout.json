@@ -4,7 +4,7 @@
       "file": "./content/no-author.md",
       "fixit": null,
       "line": null,
-      "message": "\"author\" is a required property",
+      "message": "missing required field 'author'",
       "rule": "frontmatter.schema",
       "severity": "error"
     }

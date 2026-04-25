@@ -220,8 +220,7 @@ fn normalise_paths(text: &str, canonical_scenario: &Path) -> String {
 
 fn read_expected_exit(expected_dir: &Path) -> Result<i32, String> {
     let path = expected_dir.join("exit_code");
-    let raw = fs::read_to_string(&path)
-        .map_err(|e| format!("read {}: {e}", path.display()))?;
+    let raw = fs::read_to_string(&path).map_err(|e| format!("read {}: {e}", path.display()))?;
     raw.trim()
         .parse::<i32>()
         .map_err(|e| format!("parse exit_code in {}: {e}", path.display()))
@@ -233,8 +232,8 @@ fn normalise_json(raw: &[u8]) -> Result<String, String> {
         .trim();
     let parsed: serde_json::Value = serde_json::from_str(text)
         .map_err(|e| format!("CLI emitted invalid JSON: {e}\nraw:\n{text}"))?;
-    let mut out = serde_json::to_string_pretty(&parsed)
-        .map_err(|e| format!("re-serialise JSON: {e}"))?;
+    let mut out =
+        serde_json::to_string_pretty(&parsed).map_err(|e| format!("re-serialise JSON: {e}"))?;
     out.push('\n');
     Ok(out)
 }

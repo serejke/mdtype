@@ -4,7 +4,7 @@
       "file": "./content/extra-between.md",
       "fixit": null,
       "line": 9,
-      "message": "unexpected section 'Aside' between required sections (strict mode)",
+      "message": "unexpected H2 section 'Aside' between required sections (strict mode)",
       "rule": "body.section_order",
       "severity": "error"
     },
@@ -12,7 +12,7 @@
       "file": "./content/inverted.md",
       "fixit": null,
       "line": 9,
-      "message": "section 'Alpha' is out of order: should appear before 'Beta'",
+      "message": "H2 section 'Alpha' is out of order; should appear before 'Beta'",
       "rule": "body.section_order",
       "severity": "error"
     },
@@ -24,7 +24,7 @@
         "kind": "AppendSection"
       },
       "line": null,
-      "message": "missing required section 'Beta'",
+      "message": "missing H2 section 'Beta'; add it as '## Beta'",
       "rule": "body.section_order",
       "severity": "error"
     }

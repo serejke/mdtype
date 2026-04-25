@@ -1,4 +1,4 @@
 ./content/has-todo.md
-  error[body.forbidden_sections] line 9: forbidden section 'TODO'
+  error[body.forbidden_sections] line 9: H2 section 'TODO' is not allowed (forbidden by schema)
 
 mdtype: 1 error across 1 file (2 files scanned)

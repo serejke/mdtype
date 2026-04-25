@@ -5,9 +5,11 @@
 //!   (extras at the start or after the last required are still allowed).
 //! - `relaxed`: listed sections must appear in order; other H2s may interleave anywhere.
 
-use mdtype_core::nodes::{AstNode, NodeValue};
+use mdtype_core::nodes::NodeValue;
 use mdtype_core::{BodyRule, BodyRuleFactory, Diagnostic, Error, Fixit, ParsedDocument, Severity};
 use serde::Deserialize;
+
+use crate::heading_text;
 
 /// Rule id.
 pub const ID: &str = "body.section_order";
@@ -47,7 +49,7 @@ impl BodyRule for Rule {
                     line: None,
                     rule: ID,
                     severity: Severity::Error,
-                    message: format!("missing required section '{required}'"),
+                    message: format!("missing H2 section '{required}'; add it as '## {required}'"),
                     fixit: Some(Fixit::AppendSection {
                         heading: format!("## {required}"),
                         after: None,
@@ -84,7 +86,7 @@ impl BodyRule for Rule {
                     rule: ID,
                     severity: Severity::Error,
                     message: format!(
-                        "section '{}' is out of order: should appear before '{}'",
+                        "H2 section '{}' is out of order; should appear before '{}'",
                         curr.text, prev.text
                     ),
                     fixit: None,
@@ -105,7 +107,7 @@ impl BodyRule for Rule {
                         rule: ID,
                         severity: Severity::Error,
                         message: format!(
-                            "unexpected section '{}' between required sections (strict mode)",
+                            "unexpected H2 section '{}' between required sections (strict mode)",
                             between.text
                         ),
                         fixit: None,
@@ -144,19 +146,6 @@ fn collect_h2_headings(doc: &ParsedDocument<'_>) -> Vec<H2Heading> {
         });
     }
     out
-}
-
-fn heading_text<'a>(heading: &'a AstNode<'a>) -> String {
-    let mut buf = String::new();
-    for desc in heading.descendants().skip(1) {
-        let data = desc.data.borrow();
-        match &data.value {
-            NodeValue::Text(t) => buf.push_str(t),
-            NodeValue::Code(c) => buf.push_str(&c.literal),
-            _ => {}
-        }
-    }
-    buf
 }
 
 /// Factory. Params shape: `{ order: [String, ...], mode: "strict" | "relaxed" }`.

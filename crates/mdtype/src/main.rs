@@ -105,7 +105,7 @@ fn run(cli: &Cli) -> anyhow::Result<ExitCode> {
         let parsed = match parse_file(file, &arena) {
             Ok(d) => d,
             Err(e) => {
-                diagnostics.push(parse_failure_diagnostic(file, &e.to_string()));
+                diagnostics.push(parse_failure_diagnostic(file, &format_parse_error(&e)));
                 files_with_errors.insert(file.clone());
                 continue;
             }
@@ -174,6 +174,18 @@ fn parse_failure_diagnostic(file: &Path, message: &str) -> Diagnostic {
         severity: Severity::Error,
         message: message.to_string(),
         fixit: None,
+    }
+}
+
+/// Render a [`mdtype_core::Error`] as a diagnostic message — strips the redundant `path:`
+/// prefix the Display impls carry (the diagnostic's `file` field already names the file).
+fn format_parse_error(error: &mdtype_core::Error) -> String {
+    use mdtype_core::Error;
+    match error {
+        Error::Frontmatter { message, .. } => format!("frontmatter parse failed: {message}"),
+        Error::Io { source, .. } => format!("read failed: {source}"),
+        Error::Schema(msg) => format!("schema error: {msg}"),
+        Error::Other(msg) => msg.clone(),
     }
 }
 

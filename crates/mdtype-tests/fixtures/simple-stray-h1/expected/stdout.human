@@ -1,4 +1,4 @@
 ./content/stray.md
-  error[body.forbid_h1] line 5: top-level H1 is not allowed
+  error[body.forbid_h1] line 5: top-level heading '# This H1 trips body.forbid_h1' is not allowed; use '## This H1 trips body.forbid_h1' or rely on the file title
 
 mdtype: 1 error across 1 file (1 file scanned)

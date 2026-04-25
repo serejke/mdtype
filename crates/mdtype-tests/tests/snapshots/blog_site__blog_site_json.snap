@@ -8,7 +8,7 @@ expression: pretty
       "file": "examples/blog-site/content/posts/2026-02-missing-author.md",
       "fixit": null,
       "line": null,
-      "message": "\"author\" is a required property",
+      "message": "missing required field 'author'",
       "rule": "frontmatter.schema",
       "severity": "error"
     },
@@ -19,7 +19,7 @@ expression: pretty
         "line": 8
       },
       "line": 8,
-      "message": "top-level H1 is not allowed",
+      "message": "top-level heading '# Stray H1 — should fail body.forbid_h1' is not allowed; use '## Stray H1 — should fail body.forbid_h1' or rely on the file title",
       "rule": "body.forbid_h1",
       "severity": "error"
     }

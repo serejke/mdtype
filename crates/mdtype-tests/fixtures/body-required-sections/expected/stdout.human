@@ -1,8 +1,8 @@
 ./content/all-missing.md
-  error[body.required_sections] missing required section 'Summary'
-  error[body.required_sections] missing required section 'Conclusion'
+  error[body.required_sections] missing H2 section 'Summary'; add it as '## Summary'
+  error[body.required_sections] missing H2 section 'Conclusion'; add it as '## Conclusion'
 
 ./content/missing-conclusion.md
-  error[body.required_sections] missing required section 'Conclusion'
+  error[body.required_sections] missing H2 section 'Conclusion'; add it as '## Conclusion'
 
 mdtype: 3 errors across 2 files (3 files scanned)
