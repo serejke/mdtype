@@ -1,0 +1,4 @@
+./content/scalar-tags.md
+  error[frontmatter.schema] /tags: "just-one-string" is not of type "array"
+
+mdtype: 1 error across 1 file (1 file scanned)

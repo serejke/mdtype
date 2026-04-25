@@ -1,0 +1,13 @@
+name: post
+frontmatter:
+  type: object
+  required: [title, tags]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+    tags:
+      type: array
+      items: { type: string }
+
+body: []

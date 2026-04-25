@@ -1,0 +1,19 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/unclosed.md",
+      "fixit": null,
+      "line": null,
+      "message": "malformed frontmatter in ./content/unclosed.md: missing closing `---` fence",
+      "rule": "mdtype.parse",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 1,
+    "files_scanned": 1,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

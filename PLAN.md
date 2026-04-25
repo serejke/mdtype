@@ -239,10 +239,10 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.5 Frontmatter scenarios
 
-- [ ] `frontmatter-wrong-type/` — type mismatch (array required, scalar given).
-- [ ] `frontmatter-additional-properties/` — schema with `additionalProperties: false` and a file with an extra field.
-- [ ] `frontmatter-absent/` — file with no `---` block where the schema requires frontmatter.
-- [ ] `frontmatter-malformed/` — leading `---` opened but never closed.
+- [x] `frontmatter-wrong-type/` — type mismatch (array required, scalar given).
+- [x] `frontmatter-additional-properties/` — schema with `additionalProperties: false` and a file with an extra field.
+- [x] `frontmatter-absent/` — file with no `---` block where the schema requires frontmatter.
+- [x] `frontmatter-malformed/` — leading `---` opened but never closed.
 
 ### 7.6 Body-rule scenarios
 

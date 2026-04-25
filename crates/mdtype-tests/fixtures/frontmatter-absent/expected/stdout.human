@@ -1,0 +1,4 @@
+./content/no-frontmatter.md
+  error[frontmatter.schema] null is not of type "object"
+
+mdtype: 1 error across 1 file (1 file scanned)
