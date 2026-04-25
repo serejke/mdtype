@@ -1,0 +1,4 @@
+# Override walk-up — the config lives in conf/, not at the scenario root.
+--config
+conf/.mdtype.yaml
+content

@@ -1,0 +1,1 @@
+mdtype: loading <scenario>/.mdtype.yaml: invalid schema: malformed config <scenario>/.mdtype.yaml: rules[0]: invalid type: string "this is not a valid rule entry [", expected struct RuleEntry at line 2 column 5

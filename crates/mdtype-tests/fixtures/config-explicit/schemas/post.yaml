@@ -1,0 +1,11 @@
+name: post
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+      minLength: 1
+
+body: []

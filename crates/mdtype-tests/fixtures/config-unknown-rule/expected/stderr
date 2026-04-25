@@ -1,0 +1,1 @@
+mdtype: loading <scenario>/.mdtype.yaml: invalid schema: unknown body-rule id `not-a-real-rule-id` in body[0] of <scenario>/schemas/post.yaml

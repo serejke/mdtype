@@ -6,7 +6,15 @@
 //! * exit code matches `expected/exit_code`
 //! * stdout in `--format human --no-color` matches `expected/stdout.human`
 //! * stdout in `--format json` (re-pretty-printed) matches `expected/stdout.json`
-//! * stderr is empty
+//! * stderr matches `expected/stderr` if present, else stderr is empty
+//!
+//! Per-scenario knobs:
+//!
+//! * `args.txt` — one CLI arg per line, used instead of the default `.`. Lets a scenario
+//!   pass `--config`, `--schema`, multiple paths, etc.
+//!
+//! All output is path-normalised before comparison: occurrences of the absolute scenario
+//! path get rewritten to `<scenario>` so goldens stay portable across checkouts.
 //!
 //! Adding a new scenario requires only a new folder under `fixtures/` — no Rust changes.
 //! Regenerate goldens with `UPDATE_FIXTURES=1 cargo test -p mdtype-tests --test fixtures`.
@@ -95,10 +103,15 @@ fn collect_scenarios(root: &Path) -> Vec<PathBuf> {
 }
 
 fn run_scenario(scenario: &Path, format: Format) -> Result<(), String> {
-    let output = Command::new(mdtype_bin())
-        .args(format.cli_args())
-        .arg(".")
-        .current_dir(scenario)
+    let canonical_scenario = fs::canonicalize(scenario)
+        .map_err(|e| format!("canonicalize {}: {e}", scenario.display()))?;
+
+    let mut cmd = Command::new(mdtype_bin());
+    cmd.args(format.cli_args()).current_dir(scenario);
+    for arg in scenario_args(scenario)? {
+        cmd.arg(arg);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("failed to spawn mdtype: {e}"))?;
 
@@ -108,6 +121,7 @@ fn run_scenario(scenario: &Path, format: Format) -> Result<(), String> {
         .ok_or_else(|| String::from("process terminated by signal"))?;
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
     let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let normalised_stderr = normalise_paths(&stderr, &canonical_scenario);
 
     let expected_dir = scenario.join("expected");
     let expected_exit = read_expected_exit(&expected_dir).map_err(|e| {
@@ -120,39 +134,88 @@ fn run_scenario(scenario: &Path, format: Format) -> Result<(), String> {
         ));
     }
 
-    let normalised_stdout = match format {
-        Format::Human => stdout,
-        Format::Json => normalise_json(&output.stdout)?,
+    // On exit 2 (config/schema errors) the CLI writes nothing to stdout and the message
+    // lands on stderr — keep empty stdout as-is rather than trying to JSON-parse it.
+    let normalised_stdout = if output.stdout.is_empty() {
+        String::new()
+    } else {
+        match format {
+            Format::Human => normalise_paths(&stdout, &canonical_scenario),
+            Format::Json => normalise_paths(&normalise_json(&output.stdout)?, &canonical_scenario),
+        }
     };
 
-    let expected_stdout_path = expected_dir.join(format.expected_filename());
-    if std::env::var(UPDATE_ENV).as_deref() == Ok("1") {
+    let updating = std::env::var(UPDATE_ENV).as_deref() == Ok("1");
+    if updating {
         fs::create_dir_all(&expected_dir)
             .map_err(|e| format!("create {}: {e}", expected_dir.display()))?;
-        fs::write(&expected_stdout_path, &normalised_stdout)
-            .map_err(|e| format!("write {}: {e}", expected_stdout_path.display()))?;
-        return Ok(());
     }
-    let expected_stdout = fs::read_to_string(&expected_stdout_path).map_err(|e| {
-        format!(
-            "read {}: {e}\n\
-             actual stdout was:\n{normalised_stdout}\n\
-             (re-run with {UPDATE_ENV}=1 to write expected files)",
-            expected_stdout_path.display()
-        )
-    })?;
-    if normalised_stdout != expected_stdout {
+
+    write_or_compare(
+        &expected_dir.join(format.expected_filename()),
+        &normalised_stdout,
+        updating,
+    )?;
+
+    let expected_stderr_path = expected_dir.join("stderr");
+    if expected_stderr_path.exists() || (updating && !normalised_stderr.is_empty()) {
+        write_or_compare(&expected_stderr_path, &normalised_stderr, updating)?;
+    } else if !normalised_stderr.is_empty() {
         return Err(format!(
-            "stdout mismatch in {}\n--- expected ---\n{expected_stdout}--- actual ---\n{normalised_stdout}",
-            expected_stdout_path.display()
+            "expected empty stderr, got:\n{normalised_stderr}\n\
+             (write expected/stderr to assert against it instead)"
         ));
     }
 
-    if !stderr.is_empty() {
-        return Err(format!("expected empty stderr, got:\n{stderr}"));
-    }
-
     Ok(())
+}
+
+fn write_or_compare(path: &Path, actual: &str, updating: bool) -> Result<(), String> {
+    if updating {
+        return fs::write(path, actual).map_err(|e| format!("write {}: {e}", path.display()));
+    }
+    let expected = fs::read_to_string(path).map_err(|e| {
+        format!(
+            "read {}: {e}\n\
+             actual was:\n{actual}\n\
+             (re-run with {UPDATE_ENV}=1 to write expected files)",
+            path.display()
+        )
+    })?;
+    if actual != expected {
+        return Err(format!(
+            "{} mismatch\n--- expected ---\n{expected}--- actual ---\n{actual}",
+            path.display()
+        ));
+    }
+    Ok(())
+}
+
+fn scenario_args(scenario: &Path) -> Result<Vec<String>, String> {
+    let path = scenario.join("args.txt");
+    let raw = match fs::read_to_string(&path) {
+        Ok(text) => text,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(vec![".".into()]),
+        Err(e) => return Err(format!("read {}: {e}", path.display())),
+    };
+    let args: Vec<String> = raw
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .map(str::to_string)
+        .collect();
+    if args.is_empty() {
+        return Err(format!(
+            "{} is empty; either delete it or provide at least one arg",
+            path.display()
+        ));
+    }
+    Ok(args)
+}
+
+fn normalise_paths(text: &str, canonical_scenario: &Path) -> String {
+    let canonical = canonical_scenario.to_string_lossy().into_owned();
+    text.replace(&canonical, "<scenario>")
 }
 
 fn read_expected_exit(expected_dir: &Path) -> Result<i32, String> {

@@ -232,10 +232,10 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.4 Configuration scenarios
 
-- [ ] `config-missing/` — directory with no `.mdtype.yaml`. Exit `2`.
-- [ ] `config-malformed/` — `.mdtype.yaml` with invalid YAML. Exit `2`.
-- [ ] `config-unknown-rule/` — schema references a body-rule id not in the registry. Exit `2`.
-- [ ] `config-explicit/` — invocation with `--config` overriding walk-up.
+- [x] `config-missing/` — directory with no `.mdtype.yaml`. Exit `2`.
+- [x] `config-malformed/` — `.mdtype.yaml` with invalid YAML. Exit `2`.
+- [x] `config-unknown-rule/` — schema references a body-rule id not in the registry. Exit `2`.
+- [x] `config-explicit/` — invocation with `--config` overriding walk-up.
 
 ### 7.5 Frontmatter scenarios
 
