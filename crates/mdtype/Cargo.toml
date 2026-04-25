@@ -20,11 +20,12 @@ path = "src/main.rs"
 workspace = true
 
 [dependencies]
-mdtype-core = { path = "../mdtype-core", version = "0.1.0" }
-mdtype-schema-yaml = { path = "../mdtype-schema-yaml", version = "0.1.0" }
-mdtype-rules-stdlib = { path = "../mdtype-rules-stdlib", version = "0.1.0" }
-mdtype-reporter-human = { path = "../mdtype-reporter-human", version = "0.1.0" }
-mdtype-reporter-json = { path = "../mdtype-reporter-json", version = "0.1.0" }
+mdtype-core = { path = "../mdtype-core", version = "0.2.0" }
+mdtype-schema-yaml = { path = "../mdtype-schema-yaml", version = "0.2.0" }
+mdtype-rules-stdlib = { path = "../mdtype-rules-stdlib", version = "0.2.0" }
+mdtype-rules-obsidian = { path = "../mdtype-rules-obsidian", version = "0.2.0" }
+mdtype-reporter-human = { path = "../mdtype-reporter-human", version = "0.2.0" }
+mdtype-reporter-json = { path = "../mdtype-reporter-json", version = "0.2.0" }
 clap = { workspace = true }
 anyhow = { workspace = true }
 globset = { workspace = true }

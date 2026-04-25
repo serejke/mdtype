@@ -1,0 +1,6 @@
+./content/index.md
+  error[links.obsidian_vault] line 17: wikilink target 'Nowhere' not found in workspace
+  error[links.obsidian_vault] line 19: wikilink target 'Other' has no heading matching anchor '#No Such Heading'
+  error[links.obsidian_vault] line 22: wikilink target 'Twin' is ambiguous; equally-shortest matches: ./content/a/Twin.md, ./content/b/Twin.md
+
+mdtype: 3 errors across 1 file (6 files scanned)

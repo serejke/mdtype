@@ -1,0 +1,5 @@
+name: post
+description: Inline-link integrity check.
+
+workspace:
+  - rule: links.relative_path

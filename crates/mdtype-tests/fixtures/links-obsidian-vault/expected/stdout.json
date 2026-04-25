@@ -1,0 +1,35 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 17,
+      "message": "wikilink target 'Nowhere' not found in workspace",
+      "rule": "links.obsidian_vault",
+      "severity": "error"
+    },
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 19,
+      "message": "wikilink target 'Other' has no heading matching anchor '#No Such Heading'",
+      "rule": "links.obsidian_vault",
+      "severity": "error"
+    },
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 22,
+      "message": "wikilink target 'Twin' is ambiguous; equally-shortest matches: ./content/a/Twin.md, ./content/b/Twin.md",
+      "rule": "links.obsidian_vault",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 3,
+    "files_scanned": 6,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

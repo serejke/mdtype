@@ -16,7 +16,7 @@ description = "YAML-backed SchemaSource for mdtype."
 workspace = true
 
 [dependencies]
-mdtype-core = { path = "../mdtype-core", version = "0.1.0" }
+mdtype-core = { path = "../mdtype-core", version = "0.2.0" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }

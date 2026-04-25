@@ -16,12 +16,13 @@ use anyhow::{anyhow, Context};
 use clap::Parser;
 use globset::{GlobBuilder, GlobSet, GlobSetBuilder};
 use mdtype_core::{
-    parse_file, Arena, BodyRuleFactory, CoreValidator, Diagnostic, Reporter, Schema, SchemaSource,
-    Severity, Summary, Validator,
+    read_frontmatter, run_workspace, BodyRuleFactory, Diagnostic, Reporter, Schema, SchemaSource,
+    Severity, Summary, WorkspaceRuleFactory,
 };
 use mdtype_reporter_human::HumanReporter;
 use mdtype_reporter_json::JsonReporter;
-use mdtype_rules_stdlib::register_stdlib;
+use mdtype_rules_obsidian::register_obsidian;
+use mdtype_rules_stdlib::{register_stdlib, register_stdlib_workspace};
 use mdtype_schema_yaml::{config_walk_up, load_schema_file, YamlSchemaSource};
 
 const PARSE_RULE_ID: &str = "mdtype.parse";
@@ -77,12 +78,21 @@ fn main() -> ExitCode {
 }
 
 fn run(cli: &Cli) -> anyhow::Result<ExitCode> {
-    let factories = Arc::new(register_stdlib());
+    let body_factories = Arc::new(register_stdlib());
+    let mut workspace_factory_list = register_stdlib_workspace();
+    workspace_factory_list.extend(register_obsidian());
+    let workspace_factories = Arc::new(workspace_factory_list);
     let cwd = std::env::current_dir().context("reading current directory")?;
 
     let mut schemas: Vec<Schema> = Vec::new();
     let mut override_cache: HashMap<PathBuf, usize> = HashMap::new();
-    let mode = build_mode(cli, &cwd, &factories, &mut schemas)?;
+    let mode = build_mode(
+        cli,
+        &cwd,
+        &body_factories,
+        &workspace_factories,
+        &mut schemas,
+    )?;
 
     let walk_roots = if cli.paths.is_empty() {
         vec![cwd.clone()]
@@ -97,52 +107,56 @@ fn run(cli: &Cli) -> anyhow::Result<ExitCode> {
     files.sort();
     files.dedup();
 
-    let mut diagnostics: Vec<Diagnostic> = Vec::new();
-    let mut files_with_errors: HashSet<PathBuf> = HashSet::new();
-
+    // Frontmatter pre-pass: read each file's YAML block (no body parse), use it to pick
+    // the file's schema. Pre-pass failures are CLI-side parse diagnostics; the file is
+    // excluded from the runner's input so the runner never re-attempts a parse the CLI
+    // already failed.
+    let mut prepass_diagnostics: Vec<Diagnostic> = Vec::new();
+    let mut runner_files: Vec<PathBuf> = Vec::with_capacity(files.len());
+    let mut runner_schema_idx: Vec<Option<usize>> = Vec::with_capacity(files.len());
     for file in &files {
-        let arena = Arena::new();
-        let parsed = match parse_file(file, &arena) {
-            Ok(d) => d,
+        let frontmatter = match read_frontmatter(file) {
+            Ok(v) => v,
             Err(e) => {
-                diagnostics.push(parse_failure_diagnostic(file, &format_parse_error(&e)));
-                files_with_errors.insert(file.clone());
+                prepass_diagnostics.push(parse_failure_diagnostic(file, &format_parse_error(&e)));
                 continue;
             }
         };
-
         let schema_idx = match resolve_schema_index(
             &mode,
             file,
-            &parsed.frontmatter,
-            &factories,
+            &frontmatter,
+            &body_factories,
+            &workspace_factories,
             &mut schemas,
             &mut override_cache,
         ) {
             Ok(idx) => idx,
             Err(e) => {
-                diagnostics.push(parse_failure_diagnostic(file, &e.to_string()));
-                files_with_errors.insert(file.clone());
+                prepass_diagnostics.push(parse_failure_diagnostic(file, &e.to_string()));
                 continue;
             }
         };
-
-        let Some(idx) = schema_idx else {
-            continue;
-        };
-        let mut file_diags = CoreValidator.validate(&parsed, &schemas[idx]);
-        if !file_diags.is_empty() {
-            files_with_errors.insert(file.clone());
-        }
-        diagnostics.append(&mut file_diags);
+        runner_files.push(file.clone());
+        runner_schema_idx.push(schema_idx);
     }
 
+    let runner_diagnostics = run_workspace(&runner_files, &schemas, &runner_schema_idx)
+        .context("running workspace pipeline")?;
+
+    let mut diagnostics: Vec<Diagnostic> = prepass_diagnostics;
+    diagnostics.extend(runner_diagnostics);
     diagnostics.sort_by(|a, b| {
         a.file
             .cmp(&b.file)
             .then_with(|| a.line.cmp(&b.line))
             .then_with(|| a.rule.cmp(b.rule))
     });
+
+    let mut files_with_errors: HashSet<PathBuf> = HashSet::new();
+    for d in &diagnostics {
+        files_with_errors.insert(d.file.clone());
+    }
 
     let summary = Summary {
         files_scanned: files.len(),
@@ -207,11 +221,12 @@ enum Mode {
 fn build_mode(
     cli: &Cli,
     cwd: &Path,
-    factories: &Arc<Vec<Box<dyn BodyRuleFactory>>>,
+    body_factories: &Arc<Vec<Box<dyn BodyRuleFactory>>>,
+    workspace_factories: &Arc<Vec<Box<dyn WorkspaceRuleFactory>>>,
     schemas: &mut Vec<Schema>,
 ) -> anyhow::Result<Mode> {
     if let Some(p) = &cli.schema {
-        let schema = load_schema_file(p, factories)
+        let schema = load_schema_file(p, body_factories, workspace_factories)
             .with_context(|| format!("loading --schema {}", p.display()))?;
         schemas.push(schema);
         return Ok(Mode::Single);
@@ -225,7 +240,11 @@ fn build_mode(
         found
     };
 
-    let source = YamlSchemaSource::new(config_path.clone(), Arc::clone(factories));
+    let source = YamlSchemaSource::new(
+        config_path.clone(),
+        Arc::clone(body_factories),
+        Arc::clone(workspace_factories),
+    );
     let root = source.root.clone();
     let entries = source
         .load()
@@ -257,7 +276,8 @@ fn resolve_schema_index(
     mode: &Mode,
     file: &Path,
     frontmatter: &serde_json::Value,
-    factories: &Arc<Vec<Box<dyn BodyRuleFactory>>>,
+    body_factories: &Arc<Vec<Box<dyn BodyRuleFactory>>>,
+    workspace_factories: &Arc<Vec<Box<dyn WorkspaceRuleFactory>>>,
     schemas: &mut Vec<Schema>,
     override_cache: &mut HashMap<PathBuf, usize>,
 ) -> anyhow::Result<Option<usize>> {
@@ -283,7 +303,7 @@ fn resolve_schema_index(
         if let Some(&idx) = override_cache.get(&key) {
             return Ok(Some(idx));
         }
-        let schema = load_schema_file(&resolved, factories)
+        let schema = load_schema_file(&resolved, body_factories, workspace_factories)
             .with_context(|| format!("loading override schema {}", resolved.display()))?;
         let idx = schemas.len();
         schemas.push(schema);

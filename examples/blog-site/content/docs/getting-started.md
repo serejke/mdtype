@@ -3,4 +3,10 @@ title: Getting started
 description: How to use the example site.
 ---
 
-A short doc page to exercise the doc-page schema.
+## Install
+
+Clone the repo and run `mdtype` from the project root.
+
+## Configure
+
+The schema lives in `schemas/`. Edit it to taste.

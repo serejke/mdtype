@@ -30,3 +30,7 @@ body:
     mode: relaxed
   - rule: forbidden-sections
     sections: [TODO, Scratch]
+
+workspace:
+  - rule: links.relative_path
+    check_anchors: true

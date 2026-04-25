@@ -1,0 +1,3 @@
+rules:
+  - glob: "content/**/*.md"
+    schema: schemas/note.yaml

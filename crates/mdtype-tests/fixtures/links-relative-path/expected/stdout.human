@@ -1,0 +1,6 @@
+./content/index.md
+  error[links.relative_path] line 9: link target 'does-not-exist.md' not found in workspace
+  error[links.relative_path] line 12: link target 'setup.md' has no heading matching anchor '#nonexistent'
+  error[links.relative_path] line 17: anchor '#nope' has no matching heading
+
+mdtype: 3 errors across 1 file (2 files scanned)

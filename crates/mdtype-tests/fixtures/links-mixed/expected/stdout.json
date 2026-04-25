@@ -1,0 +1,27 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 11,
+      "message": "link target 'missing.md' not found in workspace",
+      "rule": "links.relative_path",
+      "severity": "error"
+    },
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 13,
+      "message": "wikilink target 'NopeNope' not found in workspace",
+      "rule": "links.obsidian_vault",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 2,
+    "files_scanned": 2,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

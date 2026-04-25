@@ -176,6 +176,89 @@ impl Reporter for LinesReporter {
 
 If you want this picked up by the `mdtype` CLI rather than your own front-end, build your own thin binary that wires `clap → SchemaSource → CoreValidator → YourReporter`. The CLI in `crates/mdtype/src/main.rs` is ~300 lines and is the canonical template — copy it and replace the bits you care about.
 
+## 4. A new workspace rule
+
+A `WorkspaceRule` answers cross-file questions: link integrity, basename ambiguity, orphan files, duplicate ids in frontmatter, etc. The rule never touches `Workspace` directly — instead it declares which fact kinds it needs via `Requirements`, and the runner runs the corresponding extractors against every parsed file before any rule checks.
+
+`unique_frontmatter_ids` — fail if any two files share the same `id:` value in frontmatter:
+
+```rust
+use std::collections::HashMap;
+use std::path::PathBuf;
+
+use mdtype_core::{
+    Diagnostic, Error, Requirements, Severity, Workspace, WorkspaceRule, WorkspaceRuleFactory,
+};
+
+pub const ID: &str = "frontmatter.unique_id";
+
+pub struct Rule;
+
+impl WorkspaceRule for Rule {
+    fn id(&self) -> &'static str { ID }
+
+    fn requires(&self) -> Requirements {
+        // Frontmatter is always indexed, so no flag is needed; this rule sets nothing.
+        Requirements::default()
+    }
+
+    fn check(&self, ws: &Workspace, scope: &[PathBuf], out: &mut Vec<Diagnostic>) {
+        let mut by_id: HashMap<String, Vec<&PathBuf>> = HashMap::new();
+        for file in &ws.files {
+            if let Some(fm) = ws.frontmatter.get(file) {
+                if let Some(id) = fm.get("id").and_then(|v| v.as_str()) {
+                    by_id.entry(id.to_string()).or_default().push(file);
+                }
+            }
+        }
+        for source in scope {
+            let Some(fm) = ws.frontmatter.get(source) else { continue };
+            let Some(id) = fm.get("id").and_then(|v| v.as_str()) else { continue };
+            let bucket = &by_id[id];
+            if bucket.len() > 1 {
+                out.push(Diagnostic {
+                    file: source.clone(),
+                    line: None,
+                    rule: ID,
+                    severity: Severity::Error,
+                    message: format!(
+                        "frontmatter id '{id}' is shared with {} other file(s)",
+                        bucket.len() - 1
+                    ),
+                    fixit: None,
+                });
+            }
+        }
+    }
+}
+
+pub struct Factory;
+impl WorkspaceRuleFactory for Factory {
+    fn id(&self) -> &'static str { ID }
+    fn build(&self, _params: &serde_json::Value) -> Result<Box<dyn WorkspaceRule>, Error> {
+        Ok(Box::new(Rule))
+    }
+}
+```
+
+Wire the workspace factory into the loader's second registry:
+
+```rust
+let body_factories = std::sync::Arc::new(mdtype_rules_stdlib::register_stdlib());
+let mut workspace = mdtype_rules_stdlib::register_stdlib_workspace();
+workspace.push(Box::new(my_rules::unique_frontmatter_ids::Factory));
+let workspace_factories = std::sync::Arc::new(workspace);
+```
+
+YAML reference (workspace rule ids are canonical-only):
+
+```yaml
+workspace:
+  - rule: frontmatter.unique_id
+```
+
+If your rule needs facts beyond frontmatter — headings, inline links, wikilinks — set the matching flags in `requires()`. The runner unions every enabled rule's requirements and runs the corresponding core extractors. A rule that needs a fact kind not yet shipped in `mdtype-core` must extend `Requirements` (and the matching extractor) in core; this is the trait-boundary cost of keeping rules pure judges.
+
 ## Why this stays small
 
-`mdtype-core` declares the data model (`Diagnostic`, `Severity`, `Fixit`, `Summary`, `ParsedDocument`, `Schema`, `SchemaEntry`) and the four traits (`BodyRule`, `BodyRuleFactory`, `SchemaSource`, `Reporter`). It contains the parser and the default `CoreValidator`. **It depends on no sibling crate.** Anything you build downstream is a peer of the stdlib, not a fork of it.
+`mdtype-core` declares the data model (`Diagnostic`, `Severity`, `Fixit`, `Summary`, `ParsedDocument`, `Schema`, `SchemaEntry`, `Workspace`, `LinkRef`, `HeadingFact`, `Requirements`) and the trait set (`BodyRule`, `BodyRuleFactory`, `WorkspaceRule`, `WorkspaceRuleFactory`, `SchemaSource`, `Reporter`, `Validator`). It contains the parser, the fact extractors, the default `CoreValidator`, and `run_workspace`. **It depends on no sibling crate.** Anything you build downstream is a peer of the stdlib, not a fork of it.

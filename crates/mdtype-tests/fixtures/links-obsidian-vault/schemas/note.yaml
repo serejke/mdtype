@@ -1,0 +1,7 @@
+name: vault-note
+description: Obsidian-flavored wikilink integrity.
+
+workspace:
+  - rule: links.obsidian_vault
+    on_ambiguous: error
+    check_anchors: true

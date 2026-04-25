@@ -12,6 +12,7 @@ For body rules referenced from the `body:` block, see [`docs/rules.md`](./rules.
 | `description` | string | no       | Free-form description; multi-line YAML strings are supported. Surfaced in human reports.                                             |
 | `frontmatter` | object | no       | A [JSON Schema 2020-12][jsonschema] document, validated against the file's parsed YAML frontmatter. Omit to skip frontmatter checks. |
 | `body`        | array  | no       | Ordered list of body-rule invocations. Empty or missing means no body checks.                                                        |
+| `workspace`   | array  | no       | Ordered list of workspace-rule invocations. Empty or missing means no cross-file checks.                                             |
 
 [jsonschema]: https://json-schema.org/specification-links#2020-12
 
@@ -44,6 +45,22 @@ body:
 Both the canonical id (e.g. `body.forbid_h1`) and the kebab-case shortform (`forbid-h1`) are accepted in YAML; diagnostics always carry the canonical id. An unknown rule id raises a config error and the CLI exits `2`.
 
 Rules execute in declaration order. Each contributes zero or more diagnostics; the validator then sorts the full list by `(file, line, rule)` for stable output.
+
+## `workspace`
+
+Cross-file rules. Each entry is a mapping with a required `rule` key plus rule-specific parameters:
+
+```yaml
+workspace:
+  - rule: links.relative_path
+  - rule: links.obsidian_vault
+    on_ambiguous: error
+    check_anchors: true
+```
+
+Workspace rules run after every file is parsed. Each rule declares which fact kinds it needs (headings, inline links, wikilinks); the runner unions those declarations across the run, gathers the facts once, then judges each rule against the files attached to its schema. The same rule listed in two schemas with different parameters produces two independent rule instances — neither bleeds into the other.
+
+Workspace rule ids are canonical-only in v1 (no kebab shortform). The catalogue lives in [`docs/rules.md`](./rules.md). Unknown rule ids raise a config error.
 
 ## One root config per project (no merging)
 

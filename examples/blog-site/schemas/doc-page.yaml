@@ -12,5 +12,8 @@ frontmatter:
     description:
       type: string
 
-# Body rules will be wired up in Phase 3.
 body: []
+
+workspace:
+  - rule: links.relative_path
+    check_anchors: true

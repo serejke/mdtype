@@ -29,11 +29,11 @@ pub struct ParsedDocument<'a> {
     pub body_line_offset: usize,
 }
 
-/// Read, split, and parse a Markdown file. Returns a `ParsedDocument` suitable for the validator.
+/// Read, split, and parse a Markdown file with default comrak options.
 ///
-/// 1. Detect a leading `---\n...\n---\n` YAML block and parse it into [`serde_json::Value`].
-/// 2. Feed the remainder into `comrak::parse_document`, allocating nodes in `arena`.
-/// 3. Record the body line offset so rule diagnostics can report absolute line numbers.
+/// Equivalent to [`parse_file_with_options`] called with [`comrak::Options::default()`].
+/// Use the options-aware variant when a workspace rule needs syntax extensions enabled
+/// (e.g. wikilinks).
 ///
 /// # Errors
 ///
@@ -43,12 +43,30 @@ pub fn parse_file<'a>(
     path: &Path,
     arena: &'a Arena<AstNode<'a>>,
 ) -> Result<ParsedDocument<'a>, Error> {
+    parse_file_with_options(path, arena, &comrak::Options::default())
+}
+
+/// Read, split, and parse a Markdown file with caller-supplied comrak options.
+///
+/// 1. Detect a leading `---\n...\n---\n` YAML block and parse it into [`serde_json::Value`].
+/// 2. Feed the remainder into `comrak::parse_document`, allocating nodes in `arena`.
+/// 3. Record the body line offset so rule diagnostics can report absolute line numbers.
+///
+/// # Errors
+///
+/// Returns [`Error::Io`] on read failures and [`Error::Frontmatter`] on a malformed or
+/// unterminated YAML block.
+pub fn parse_file_with_options<'a>(
+    path: &Path,
+    arena: &'a Arena<AstNode<'a>>,
+    options: &comrak::Options,
+) -> Result<ParsedDocument<'a>, Error> {
     let raw = std::fs::read_to_string(path).map_err(|source| Error::Io {
         path: path.to_path_buf(),
         source,
     })?;
     let (frontmatter, body, body_line_offset) = split_frontmatter(&raw, path)?;
-    let ast = comrak::parse_document(arena, &body, &comrak::Options::default());
+    let ast = comrak::parse_document(arena, &body, options);
     Ok(ParsedDocument {
         path: path.to_path_buf(),
         frontmatter,
@@ -57,11 +75,40 @@ pub fn parse_file<'a>(
     })
 }
 
+/// Read a Markdown file and return only its frontmatter, skipping body parsing.
+///
+/// Used by callers that need the frontmatter to make a downstream decision (e.g.
+/// resolving a `frontmatter.schema:` override) before committing to a full parse with
+/// the right comrak options.
+///
+/// # Errors
+///
+/// Returns [`Error::Io`] on read failures and [`Error::Frontmatter`] on a malformed or
+/// unterminated YAML block.
+pub fn read_frontmatter(path: &Path) -> Result<serde_json::Value, Error> {
+    let raw = std::fs::read_to_string(path).map_err(|source| Error::Io {
+        path: path.to_path_buf(),
+        source,
+    })?;
+    let (frontmatter, _, _) = split_frontmatter(&raw, path)?;
+    Ok(frontmatter)
+}
+
 /// Split a raw Markdown string into `(frontmatter, body, body_line_offset)`.
 ///
 /// `body_line_offset` is the 1-indexed line number of the first body line in the original
 /// source — i.e., the line after the closing `---`. `1` when there is no frontmatter block.
-fn split_frontmatter(raw: &str, path: &Path) -> Result<(serde_json::Value, String, usize), Error> {
+///
+/// Public so downstream callers can do a frontmatter-only pre-pass without re-running the
+/// file read; most callers will prefer [`read_frontmatter`].
+///
+/// # Errors
+///
+/// Returns [`Error::Frontmatter`] when the block is unterminated or its YAML is invalid.
+pub fn split_frontmatter(
+    raw: &str,
+    path: &Path,
+) -> Result<(serde_json::Value, String, usize), Error> {
     let mut iter = raw.split_inclusive('\n');
     let Some(first) = iter.next() else {
         return Ok((serde_json::Value::Null, String::new(), 1));

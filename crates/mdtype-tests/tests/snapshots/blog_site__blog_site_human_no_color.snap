@@ -8,4 +8,4 @@ examples/blog-site/content/posts/2026-02-missing-author.md
 examples/blog-site/content/posts/2026-03-stray-h1.md
   error[body.forbid_h1] line 8: top-level heading '# Stray H1 — should fail body.forbid_h1' is not allowed; use '## Stray H1 — should fail body.forbid_h1' or rely on the file title
 
-mdtype: 2 errors across 2 files (4 files scanned)
+mdtype: 2 errors across 2 files (5 files scanned)

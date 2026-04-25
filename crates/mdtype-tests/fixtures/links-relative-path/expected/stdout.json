@@ -1,0 +1,35 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 9,
+      "message": "link target 'does-not-exist.md' not found in workspace",
+      "rule": "links.relative_path",
+      "severity": "error"
+    },
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 12,
+      "message": "link target 'setup.md' has no heading matching anchor '#nonexistent'",
+      "rule": "links.relative_path",
+      "severity": "error"
+    },
+    {
+      "file": "./content/index.md",
+      "fixit": null,
+      "line": 17,
+      "message": "anchor '#nope' has no matching heading",
+      "rule": "links.relative_path",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 3,
+    "files_scanned": 2,
+    "files_with_errors": 1,
+    "warnings": 0
+  },
+  "version": "1"
+}

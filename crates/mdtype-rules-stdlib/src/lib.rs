@@ -8,11 +8,12 @@
 
 pub mod forbid_h1;
 pub mod forbidden_sections;
+pub mod links;
 pub mod required_sections;
 pub mod section_order;
 
 use mdtype_core::nodes::{AstNode, NodeValue};
-use mdtype_core::BodyRuleFactory;
+use mdtype_core::{BodyRuleFactory, WorkspaceRuleFactory};
 
 /// Concatenate the rendered text of a heading node's children.
 ///
@@ -32,8 +33,8 @@ pub(crate) fn heading_text<'a>(heading: &'a AstNode<'a>) -> String {
     buf
 }
 
-/// Return the set of factories for every stdlib rule. Register these with your
-/// `SchemaSource` so YAML schemas may reference their rule ids.
+/// Return the body-rule factories shipped by stdlib. Register these with your
+/// `SchemaSource` so YAML schemas may reference body-rule ids.
 #[must_use]
 pub fn register_stdlib() -> Vec<Box<dyn BodyRuleFactory>> {
     vec![
@@ -42,4 +43,10 @@ pub fn register_stdlib() -> Vec<Box<dyn BodyRuleFactory>> {
         Box::new(section_order::Factory),
         Box::new(forbidden_sections::Factory),
     ]
+}
+
+/// Return the workspace-rule factories shipped by stdlib.
+#[must_use]
+pub fn register_stdlib_workspace() -> Vec<Box<dyn WorkspaceRuleFactory>> {
+    vec![Box::new(links::relative_path::Factory)]
 }

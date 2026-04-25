@@ -26,7 +26,7 @@ expression: pretty
   ],
   "summary": {
     "errors": 2,
-    "files_scanned": 4,
+    "files_scanned": 5,
     "files_with_errors": 2,
     "warnings": 0
   },

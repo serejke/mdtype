@@ -1,0 +1,16 @@
+name: note
+description: An Obsidian-style note. Wikilinks must resolve.
+
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: true
+  properties:
+    title:
+      type: string
+      minLength: 1
+
+workspace:
+  - rule: links.obsidian_vault
+    on_ambiguous: error
+    check_anchors: true

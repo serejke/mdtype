@@ -165,6 +165,7 @@ mod tests {
             description: None,
             frontmatter: None,
             body: Vec::new(),
+            workspace: Vec::new(),
         };
 
         let diagnostics = CoreValidator.validate(&doc, &schema);
@@ -192,6 +193,7 @@ mod tests {
                 }
             })),
             body: Vec::new(),
+            workspace: Vec::new(),
         };
 
         let diagnostics = CoreValidator.validate(&doc, &schema);

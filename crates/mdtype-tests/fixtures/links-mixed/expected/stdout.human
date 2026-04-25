@@ -1,0 +1,5 @@
+./content/index.md
+  error[links.relative_path] line 11: link target 'missing.md' not found in workspace
+  error[links.obsidian_vault] line 13: wikilink target 'NopeNope' not found in workspace
+
+mdtype: 2 errors across 1 file (2 files scanned)
