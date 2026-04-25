@@ -27,21 +27,11 @@ Prefer a manual setup? Read [Install](#install) + [Use](#use) below.
 
 ## Install
 
-**From crates.io:**
-
 ```
 cargo install mdtype
 ```
 
-**Prebuilt binary** (Linux x86_64 + aarch64, macOS x86_64 + aarch64, Windows x86_64):
-
-Grab the archive matching your platform from the latest [GitHub release](https://github.com/serejke/mdtype/releases/latest), unpack, and put the `mdtype` binary on your `PATH`. Each archive ships with a `.sha256` sidecar for integrity-checking.
-
-**With `cargo binstall`** (fast, no source build):
-
-```
-cargo binstall mdtype
-```
+That's it. Don't have Rust? `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` first, then re-run.
 
 **From source** (MSRV 1.89, pinned via `rust-toolchain.toml`):
 

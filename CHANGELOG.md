@@ -43,11 +43,15 @@ exit codes, versioned JSON output.
 - **Documentation**: README (one-screen man-page), `docs/schema.md`, `docs/rules.md`,
   `docs/json-schema.md`, `docs/error-messages.md`, `docs/integrations.md`,
   `docs/extending.md`.
+- **Distribution**: published to crates.io as `mdtype-core`, `mdtype-rules-stdlib`,
+  `mdtype-schema-yaml`, `mdtype-reporter-human`, `mdtype-reporter-json`, and the `mdtype`
+  binary. Install via `cargo install mdtype`.
+- **Agent skill**: `setup-mdtype` follows the [`vercel-labs/skills`](https://github.com/vercel-labs/skills)
+  convention. Install with `npx skills add serejke/mdtype --skill setup-mdtype`, then
+  `/setup-mdtype` inside Claude Code / Codex / Cursor / 40-odd other agents to bootstrap
+  config, schemas, and the agent's instruction file.
 - **CI**: `.github/workflows/ci.yml` — `cargo fmt --all --check`, `cargo clippy --workspace
 --all-targets --all-features -- -D warnings`, `cargo test --workspace`.
-- **Release pipeline**: `.github/workflows/release.yml` — tag push (`v*`) → matrix build
-  for Linux x86_64, macOS x86_64 + aarch64, Windows x86_64 → GitHub Release with
-  prebuilt binaries.
 
 [Unreleased]: https://github.com/serejke/mdtype/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/serejke/mdtype/releases/tag/v0.1.0

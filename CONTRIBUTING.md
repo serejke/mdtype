@@ -66,15 +66,20 @@ Every `Diagnostic.message` is consumed by humans **and** by LLM agents driving f
 
 ## Releasing
 
-Maintainer flow:
+Distribution is crates.io only — no prebuilt binaries, no release matrix. Users `cargo install mdtype` (or build from source). Maintainer flow:
 
 1. Land everything for the release on `main`. CI green.
 2. Update `CHANGELOG.md`: move the relevant items from `[Unreleased]` into a new `[X.Y.Z] — YYYY-MM-DD` section. Refresh the comparison links at the bottom.
 3. Bump the workspace `version` in `Cargo.toml` (`[workspace.package]`).
-4. Commit: `chore(release): vX.Y.Z`.
-5. Tag: `git tag -a vX.Y.Z -m "vX.Y.Z"` and `git push origin main vX.Y.Z`.
-6. The `release.yml` workflow builds prebuilt binaries for Linux x86_64 + aarch64, macOS x86_64 + aarch64, and Windows x86_64, then opens a GitHub Release with them attached (plus SHA-256 sidecars).
-7. Optionally publish each crate to crates.io in dependency order: `mdtype-core` → `mdtype-rules-stdlib` → `mdtype-schema-yaml` → `mdtype-reporter-human` → `mdtype-reporter-json` → `mdtype`. (`mdtype-tests` stays unpublished — it has `publish = false`.)
+4. Commit: `chore(release): vX.Y.Z`. Tag: `git tag -a vX.Y.Z -m "vX.Y.Z"` and push.
+5. Publish to crates.io in dependency order, waiting a few seconds between each for the index to catch up:
+   ```sh
+   for c in mdtype-core mdtype-rules-stdlib mdtype-schema-yaml \
+            mdtype-reporter-human mdtype-reporter-json mdtype; do
+     cargo publish -p "$c" && sleep 10
+   done
+   ```
+   `mdtype-tests` stays unpublished — it has `publish = false`.
 
 ## Filing a bug
 
