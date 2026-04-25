@@ -1,0 +1,3 @@
+rules:
+  - glob: "**/*.md"
+    schema: schemas/post.yaml

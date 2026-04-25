@@ -1,0 +1,4 @@
+mdtype: warning: nested .mdtype.yaml files inside <scenario> are SHADOWED by the loaded config and have no effect:
+  <scenario>/sub/.mdtype.yaml
+mdtype: only the closest .mdtype.yaml to cwd is loaded — there is no merging across nested configs.
+mdtype: to apply different rules to different folders, use globs in <scenario>/.mdtype.yaml (see examples/multi-folder/).

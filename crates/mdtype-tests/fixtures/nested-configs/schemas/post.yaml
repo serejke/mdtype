@@ -1,0 +1,7 @@
+name: post
+frontmatter:
+  type: object
+  required: [title]
+  properties:
+    title: { type: string }
+body: []

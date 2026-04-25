@@ -45,6 +45,29 @@ Both the canonical id (e.g. `body.forbid_h1`) and the kebab-case shortform (`for
 
 Rules execute in declaration order. Each contributes zero or more diagnostics; the validator then sorts the full list by `(file, line, rule)` for stable output.
 
+## One root config per project (no merging)
+
+`mdtype` walks **up** from the cwd looking for the nearest `.mdtype.yaml` and uses **only that one**. There is no merging across parent and child configs — the closest config wins, period. A `.mdtype.yaml` in a subdirectory silently shadows any ancestor `.mdtype.yaml` further up the tree.
+
+The right pattern is therefore **one root `.mdtype.yaml` per project, with multiple globs**, not nested configs at every folder level:
+
+```yaml
+# .mdtype.yaml at the project root
+rules:
+  - glob: "Daily/**/*.md"
+    schema: .mdtype/schemas/daily-note.yaml
+  - glob: "Projects/*/Sprints/**/*Workstream.md"
+    schema: .mdtype/schemas/workstream-note.yaml
+  - glob: "**/*.md"
+    schema: .mdtype/schemas/note.yaml
+```
+
+If `mdtype` detects descendant `.mdtype.yaml` files inside the loaded config's tree, it warns on stderr — those files are shadowed and have no effect. See [`examples/multi-folder/`](../examples/multi-folder/) for a complete worked layout.
+
+### Glob matching within one config
+
+Globs are matched in **declaration order**; the **first** glob that hits a given file wins. Order rules from most-specific to catch-all. There is no specificity heuristic — reorder the list and you change which schema applies. Globs follow Unix-shell semantics: `*` matches a single path segment (does not cross `/`); `**` traverses directories.
+
 ## Per-file schema override
 
 A Markdown file may opt into a non-default schema by adding a `schema:` field to its own frontmatter:

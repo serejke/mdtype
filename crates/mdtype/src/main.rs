@@ -217,9 +217,12 @@ fn build_mode(
         return Ok(Mode::Single);
     }
 
-    let config_path = match &cli.config {
-        Some(p) => p.clone(),
-        None => discover_config(cwd, &cli.paths)?,
+    let config_path = if let Some(p) = &cli.config {
+        p.clone()
+    } else {
+        let found = discover_config(cwd, &cli.paths)?;
+        warn_on_nested_configs(&found);
+        found
     };
 
     let source = YamlSchemaSource::new(config_path.clone(), Arc::clone(factories));
@@ -294,6 +297,63 @@ fn resolve_schema_index(
         .first()
         .copied()
         .map(|i| entries_offset + i))
+}
+
+/// Warn on stderr when the loaded `.mdtype.yaml` has descendant `.mdtype.yaml` files inside
+/// its tree. mdtype only honours one config — the closest-to-cwd wins, no merging — so
+/// nested configs are silently shadowed and almost always indicate a misunderstanding.
+/// Suggest the schema-per-folder pattern via globs.
+fn warn_on_nested_configs(loaded: &Path) {
+    let Some(root) = loaded.parent() else {
+        return;
+    };
+    let mut nested: Vec<PathBuf> = Vec::new();
+    collect_nested(root, loaded, &mut nested);
+    if nested.is_empty() {
+        return;
+    }
+    nested.sort();
+    let mut stderr = io::stderr().lock();
+    let _ = writeln!(
+        stderr,
+        "mdtype: warning: nested .mdtype.yaml files inside {} are SHADOWED by the loaded config and have no effect:",
+        root.display()
+    );
+    for p in &nested {
+        let _ = writeln!(stderr, "  {}", p.display());
+    }
+    let _ = writeln!(
+        stderr,
+        "mdtype: only the closest .mdtype.yaml to cwd is loaded — there is no merging across nested configs.\n\
+         mdtype: to apply different rules to different folders, use globs in {} (see examples/multi-folder/).",
+        loaded.display()
+    );
+}
+
+fn collect_nested(dir: &Path, loaded: &Path, out: &mut Vec<PathBuf>) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let Ok(ft) = entry.file_type() else { continue };
+        if ft.is_dir() {
+            // Skip dot-dirs (.git, .obsidian, etc.) — never user content.
+            if path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .is_some_and(|n| n.starts_with('.'))
+            {
+                continue;
+            }
+            collect_nested(&path, loaded, out);
+        } else if ft.is_file()
+            && path.file_name().and_then(|n| n.to_str()) == Some(".mdtype.yaml")
+            && path != loaded
+        {
+            out.push(path);
+        }
+    }
 }
 
 /// Locate `.mdtype.yaml` by walking up from the cwd; if absent, fall back to walking up from
