@@ -16,6 +16,10 @@ edition = "2021"
 rust-version = "1.89"
 license = "MIT"
 repository = "https://github.com/serejke/mdtype"
+homepage = "https://github.com/serejke/mdtype"
+authors = ["Sergei Patrikeev"]
+keywords = ["markdown", "validator", "frontmatter", "linter", "yaml"]
+categories = ["command-line-utilities", "text-processing"]
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
