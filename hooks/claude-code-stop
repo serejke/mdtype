@@ -1,0 +1,78 @@
+#!/usr/bin/env sh
+#
+# Claude Code Stop hook for mdtype.
+#
+# Runs `mdtype --format json` over the workspace when Claude tries to stop. If diagnostics
+# exist, the hook BLOCKS the stop and feeds the diagnostics back to the model so it can fix
+# them and retry.
+#
+# Install (run inside the project you want guarded):
+#
+#   1. Copy or symlink this script into the project:
+#        cp /path/to/mdtype/hooks/claude-code-stop ./.claude/mdtype-stop.sh
+#        chmod +x ./.claude/mdtype-stop.sh
+#
+#   2. Wire it into .claude/settings.json:
+#        {
+#          "hooks": {
+#            "Stop": [
+#              { "matcher": "*", "command": "./.claude/mdtype-stop.sh" }
+#            ]
+#          }
+#        }
+#
+# Configuration via env (set in .envrc / shell / wrapper):
+#
+#   MDTYPE_BIN     path to the mdtype binary (default: `mdtype` from $PATH)
+#   MDTYPE_PATH    path to validate (default: ".")
+#   MDTYPE_ARGS    extra args, e.g. "--config etc/.mdtype.yaml"
+#
+# Output contract (Claude Code Stop hook spec):
+#   - exit 0: print nothing → Claude stops normally.
+#   - emit JSON {"decision":"block","reason":"..."} to stdout → Claude refuses to stop and
+#     re-prompts itself with `reason`.
+
+set -eu
+
+MDTYPE_BIN="${MDTYPE_BIN:-mdtype}"
+MDTYPE_PATH="${MDTYPE_PATH:-.}"
+MDTYPE_ARGS="${MDTYPE_ARGS:-}"
+
+# We don't read Claude's stop-hook stdin payload; this hook always validates the workspace.
+# (Reading-and-discarding keeps the harness happy on systems that pipe.)
+if [ -t 0 ]; then : ; else cat >/dev/null; fi
+
+if ! command -v "$MDTYPE_BIN" >/dev/null 2>&1; then
+  printf '{"decision":"block","reason":"mdtype binary not found on PATH (looked for %s). Install with: cargo install mdtype"}\n' "$MDTYPE_BIN"
+  exit 0
+fi
+
+# shellcheck disable=SC2086
+report="$("$MDTYPE_BIN" --format json $MDTYPE_ARGS "$MDTYPE_PATH" 2>/dev/null || true)"
+
+# Parse summary.errors out of the JSON payload. Prefer jq; fall back to a tiny grep.
+if command -v jq >/dev/null 2>&1; then
+  errors="$(printf '%s' "$report" | jq -r '.summary.errors // 0')"
+else
+  errors="$(printf '%s' "$report" | tr -d '\n ' | sed -n 's/.*"errors":\([0-9][0-9]*\).*/\1/p')"
+  : "${errors:=0}"
+fi
+
+if [ "$errors" = "0" ]; then
+  exit 0
+fi
+
+# Build a compact, agent-friendly summary. Always include the raw JSON contract so the model
+# can inspect rule ids, line numbers, and fixit hints without scraping prose.
+reason="mdtype found ${errors} diagnostic(s). Fix every diagnostic, then re-run validation. Full report (JSON contract v1):
+
+${report}"
+
+# Emit the Claude Code Stop hook payload.
+if command -v jq >/dev/null 2>&1; then
+  jq -n --arg reason "$reason" '{decision:"block", reason:$reason}'
+else
+  # Hand-roll JSON; escape backslashes, double-quotes, newlines.
+  esc="$(printf '%s' "$reason" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' | awk 'BEGIN{ORS="\\n"}{print}')"
+  printf '{"decision":"block","reason":"%s"}\n' "$esc"
+fi

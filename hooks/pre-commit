@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+#
+# mdtype pre-commit hook.
+#
+# Validates every Markdown file staged for commit. Aborts the commit on any
+# diagnostic of severity error (mdtype exit 1) or any config / schema error
+# (mdtype exit 2).
+#
+# Install — pick whichever fits your setup:
+#
+#   1. From a clone of the mdtype repo:
+#        ./hooks/install.sh /path/to/your/project
+#
+#   2. Manually:
+#        ln -s "$(pwd)/hooks/pre-commit" /path/to/your/project/.git/hooks/pre-commit
+#        chmod +x /path/to/your/project/.git/hooks/pre-commit
+#
+#   3. Via the pre-commit framework (https://pre-commit.com):
+#        See `.pre-commit-hooks.yaml` at the repo root.
+#
+# Configuration via env (set in your shell, .envrc, or wrapper script):
+#
+#   MDTYPE_BIN     path to the mdtype binary (default: `mdtype` from $PATH)
+#   MDTYPE_FORMAT  human | json (default: human)
+#   MDTYPE_ARGS    extra args appended to the invocation, e.g. "--config etc/.mdtype.yaml"
+
+set -eu
+
+MDTYPE_BIN="${MDTYPE_BIN:-mdtype}"
+MDTYPE_FORMAT="${MDTYPE_FORMAT:-human}"
+MDTYPE_ARGS="${MDTYPE_ARGS:-}"
+
+if ! command -v "$MDTYPE_BIN" >/dev/null 2>&1; then
+  echo "mdtype: '$MDTYPE_BIN' not found on PATH." >&2
+  echo "Install with: cargo install mdtype" >&2
+  exit 2
+fi
+
+# Newline-delimited list of staged Markdown files (Added / Copied / Modified / Renamed).
+staged="$(git diff --cached --name-only --diff-filter=ACMR -- '*.md' '*.markdown')"
+
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+# shellcheck disable=SC2086 # we want word-splitting on $staged + $MDTYPE_ARGS
+echo "$staged" | tr '\n' '\0' | xargs -0 "$MDTYPE_BIN" --format "$MDTYPE_FORMAT" --no-color $MDTYPE_ARGS

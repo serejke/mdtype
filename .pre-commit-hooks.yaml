@@ -1,0 +1,13 @@
+# Manifest consumed by https://pre-commit.com when users add this repo to their
+# .pre-commit-config.yaml. The framework will install the mdtype binary itself
+# (system stage) and run it against staged Markdown.
+
+- id: mdtype
+  name: mdtype — type-check Markdown
+  description: |
+    Validates each staged .md file against the project's .mdtype.yaml schema.
+    Requires the `mdtype` binary on PATH (cargo install mdtype).
+  language: system
+  entry: mdtype --format human --no-color
+  files: \.(md|markdown)$
+  require_serial: false

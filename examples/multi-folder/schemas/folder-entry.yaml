@@ -1,0 +1,11 @@
+name: folder-entry
+description: |
+  Folder-entry / agent-instruction note (e.g. CLAUDE.md). Frontmatter is OPTIONAL
+  (Null frontmatter satisfies the schema), since these are read by tooling, not by
+  knowledge-base queries.
+
+# `frontmatter` deliberately omitted — no validation runs on the YAML block.
+
+body:
+  - rule: forbidden-sections
+    sections: [TODO, Scratch, WIP, FIXME]

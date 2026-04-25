@@ -56,6 +56,21 @@ Exit codes: `0` clean, `1` violations, `2` config error.
 
 `--format json` (the default in non-tty contexts) emits the versioned contract documented in [`docs/json-schema.md`](docs/json-schema.md). Use `mdtype --help` for the full flag table.
 
+## Hooks
+
+Drop-in scripts at [`hooks/`](hooks/):
+
+- **`pre-commit`** — block any `git commit` that would land non-conforming Markdown. One-line install: `./hooks/install.sh /path/to/your/project`.
+- **`claude-code-stop`** — Claude Code Stop hook. Blocks the agent from declaring "done" while diagnostics exist; feeds the JSON report back so it can fix and retry.
+- **`.pre-commit-hooks.yaml`** at the repo root — for users of the [pre-commit framework](https://pre-commit.com).
+
+See [`hooks/README.md`](hooks/README.md) for install + env-var configuration.
+
+## Examples
+
+- [`examples/blog-site/`](examples/blog-site/) — single-schema project; the canonical fixture.
+- [`examples/multi-folder/`](examples/multi-folder/) — schema-per-folder pattern. One root config, multiple globs, each pointing at a different schema (knowledge note / daily journal / folder-entry).
+
 ## Docs
 
 - [`docs/schema.md`](docs/schema.md) — schema file format

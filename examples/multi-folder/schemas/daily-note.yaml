@@ -1,0 +1,24 @@
+name: daily-note
+description: |
+  Daily journal note. Same frontmatter as the standard knowledge-note schema, but allows
+  the recurring `## Notes` section that scratch-style schemas would otherwise flag.
+
+frontmatter:
+  type: object
+  required: [created, updated, description]
+  additionalProperties: false
+  properties:
+    created:
+      type: string
+      format: date
+    updated:
+      type: string
+      format: date
+    description:
+      type: string
+      minLength: 20
+
+body:
+  # Note: `## Notes` deliberately absent from this list.
+  - rule: forbidden-sections
+    sections: [TODO, Scratch, WIP, Draft, FIXME]

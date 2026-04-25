@@ -4,22 +4,26 @@
 
 ## 1. Pre-commit hook
 
-Run `mdtype` on the staged Markdown files only — fast on large repos, catches breakage before it lands.
+The repo ships a ready-to-install hook at [`hooks/pre-commit`](../hooks/pre-commit) plus a one-shot installer.
 
-`.git/hooks/pre-commit` (or any equivalent hook framework):
-
-```sh
-#!/usr/bin/env sh
-set -e
-
-staged=$(git diff --cached --name-only --diff-filter=ACMR -- '*.md' '*.markdown')
-[ -z "$staged" ] && exit 0
-
-# shellcheck disable=SC2086
-mdtype --format human $staged
+```
+git clone https://github.com/serejke/mdtype
+./mdtype/hooks/install.sh /path/to/your/project
 ```
 
-Exit `0` lets the commit through; exit `1` blocks it with diagnostics already on the developer's terminal; exit `2` blocks it because the schema or config is broken (fix that first).
+That symlinks the hook into `.git/hooks/pre-commit`. Subsequent `git commit` calls run `mdtype` against staged `.md` files only — fast on large repos. Exit `0` lets the commit through; exit `1` blocks with diagnostics on the developer's terminal; exit `2` blocks because the schema or config is broken.
+
+If you use the [pre-commit framework](https://pre-commit.com), the repo also exposes a manifest (`.pre-commit-hooks.yaml`):
+
+```yaml
+repos:
+  - repo: https://github.com/serejke/mdtype
+    rev: v0.1.0
+    hooks:
+      - id: mdtype
+```
+
+See [`hooks/README.md`](../hooks/README.md) for env-var configuration (`MDTYPE_BIN`, `MDTYPE_FORMAT`, `MDTYPE_ARGS`).
 
 ## 2. CI job
 
@@ -40,30 +44,23 @@ jobs:
 
 Because stdout is captured, `--format json` is the default — the explicit flag above is for clarity. The job fails on exit `1` (diagnostics) or `2` (config error). The captured `mdtype.json` can be uploaded as an artifact and consumed by downstream tooling — annotations, dashboards, anything that reads the documented contract.
 
-## 3. LLM agent stop hook
+## 3. Claude Code Stop hook
 
-The pattern: an agent edits a Markdown file, you want to gate "done" on `mdtype` being clean, and you want failures fed back as actionable structure rather than a wall of text.
+When an agent edits a Markdown file, you want "done" gated on `mdtype` being clean, and you want failures fed back as actionable structure — not a wall of text.
 
-Generic shape (tool-agnostic):
+The repo ships [`hooks/claude-code-stop`](../hooks/claude-code-stop). Drop it into your project and wire it into `.claude/settings.json`:
 
-```sh
-#!/usr/bin/env sh
-# Run mdtype on the file(s) the agent just touched; emit JSON to stdout so the
-# orchestrator can parse it and either declare success or feed diagnostics back
-# to the model for another iteration.
-mdtype --format json "$@"
-status=$?
-
-case $status in
-  0) echo '{"ok": true}' >&2 ;;
-  1) echo '{"ok": false, "reason": "diagnostics"}' >&2 ;;
-  2) echo '{"ok": false, "reason": "config-error"}' >&2 ;;
-esac
-
-exit $status
+```json
+{
+  "hooks": {
+    "Stop": [{ "matcher": "*", "command": "./.claude/mdtype-stop.sh" }]
+  }
+}
 ```
 
-The orchestrator reads stdout (the `mdtype` JSON), iterates over `diagnostics[]`, and constructs a follow-up prompt: file path, line number, rule id, message, and the optional `fixit` hint. Because every diagnostic carries a stable `rule` id and 1-indexed `line`, the prompt can be deterministic and tight — no scraping of human messages, no model-specific glue. Loop until exit `0` or a retry budget runs out.
+When Claude tries to stop the session, the hook runs `mdtype --format json .`. On exit `0` it emits nothing and the session ends. On any diagnostic it emits `{"decision":"block","reason":"..."}` containing the full JSON contract — Claude refuses to stop and re-prompts itself with the diagnostics. Because every diagnostic carries a stable `rule` id, 1-indexed `line`, and an optional `fixit` hint, the agent can act without scraping prose. Loop until exit `0`.
+
+For other agent harnesses, the same idea works tool-agnostically — read [`docs/json-schema.md`](./json-schema.md), iterate over `diagnostics[]`, and feed the next prompt.
 
 ## Why this works
 

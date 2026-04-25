@@ -1,0 +1,23 @@
+name: knowledge-note
+description: |
+  Default schema for a knowledge note. ISO-date created/updated, single-sentence
+  description, no leftover scratch sections in the body.
+
+frontmatter:
+  type: object
+  required: [created, updated, description]
+  additionalProperties: false
+  properties:
+    created:
+      type: string
+      format: date
+    updated:
+      type: string
+      format: date
+    description:
+      type: string
+      minLength: 20
+
+body:
+  - rule: forbidden-sections
+    sections: [TODO, Scratch, WIP, Draft, FIXME]

@@ -1,0 +1,26 @@
+# Schema-per-folder. Inspired by a real Obsidian-vault dogfood — different
+# kinds of notes have different conventions, and one root config maps each
+# glob to its own schema.
+#
+# Glob matching is FIRST-MATCH-WINS. Order matters: most specific first,
+# catch-all last.
+#
+# Resolution: when you run `mdtype` somewhere inside this directory tree,
+# the CLI walks UP from the cwd looking for the nearest .mdtype.yaml.
+# Whichever it finds first is the only config used — there is no merging
+# with parent configs further up. Use one root config + globs.
+
+rules:
+  # Daily notes have a recurring `## Notes` section that the regular schema
+  # would flag — they need their own rules.
+  - glob: "content/daily/**/*.md"
+    schema: schemas/daily-note.yaml
+
+  # Team CLAUDE.md folder-entry notes are agent instructions, not knowledge
+  # notes; they don't carry the standard frontmatter.
+  - glob: "content/team/**/CLAUDE.md"
+    schema: schemas/folder-entry.yaml
+
+  # Catch-all: every other markdown file is a knowledge note.
+  - glob: "content/**/*.md"
+    schema: schemas/note.yaml
