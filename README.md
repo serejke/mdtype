@@ -11,8 +11,8 @@ JSON Schema is to JSON what `mdtype` is to Markdown. Designed to plug into pre-c
 Install the binary, then let your coding agent wire up the rest of the project for you:
 
 ```sh
-cargo install mdtype                                  # 1. install the binary
-npx skills add serejke/mdtype --skill setup-mdtype    # 2. install the /setup-mdtype agent skill
+git clone https://github.com/serejke/mdtype && cd mdtype && cargo install --path crates/mdtype
+npx skills add serejke/mdtype --skill setup-mdtype
 ```
 
 Then, inside Claude Code / Codex / Cursor:
@@ -27,19 +27,15 @@ Prefer a manual setup? Read [Install](#install) + [Use](#use) below.
 
 ## Install
 
-```
-cargo install mdtype
-```
-
-That's it. Don't have Rust? `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` first, then re-run.
-
-**From source** (MSRV 1.89, pinned via `rust-toolchain.toml`):
+Build from source (MSRV 1.89, pinned via `rust-toolchain.toml`):
 
 ```
 git clone https://github.com/serejke/mdtype
 cd mdtype
 cargo install --path crates/mdtype
 ```
+
+Don't have Rust? `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` first, then re-run.
 
 ## Use
 

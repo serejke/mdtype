@@ -11,7 +11,7 @@ You are bootstrapping [`mdtype`](https://github.com/serejke/mdtype) — a type c
 
 Before doing anything, check:
 
-1. **`mdtype` is installed.** Run `mdtype --version`. If the binary is missing, tell the user how to install — `cargo install mdtype`, prebuilt binary from <https://github.com/serejke/mdtype/releases/latest>, or `cargo binstall mdtype`. Do not proceed with steps below until they confirm install.
+1. **`mdtype` is installed.** Run `mdtype --version`. If the binary is missing, tell the user to build from source: `git clone https://github.com/serejke/mdtype && cd mdtype && cargo install --path crates/mdtype`. Do not proceed with steps below until they confirm install.
 2. **Not already initialized.** If `./.mdtype.yaml` already exists at the project root, ask the user whether to overwrite or extend. Don't silently clobber.
 3. **You are at the project root.** Check `pwd` and the presence of common project markers (`.git/`, `Cargo.toml`, `package.json`, `pyproject.toml`, an Obsidian-style folder structure, etc.). If unsure, ask.
 

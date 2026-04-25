@@ -66,20 +66,16 @@ Every `Diagnostic.message` is consumed by humans **and** by LLM agents driving f
 
 ## Releasing
 
-Distribution is crates.io only — no prebuilt binaries, no release matrix. Users `cargo install mdtype` (or build from source). Maintainer flow:
+Distribution is source-only. Users build from source — no crates.io publish, no prebuilt binaries, no release matrix. The workspace structure (`mdtype-core` + sibling crates) is preserved as the extension surface for anyone who wants to write a downstream rule / source / reporter against `mdtype-core` (see [`docs/extending.md`](docs/extending.md)) — but they vendor or git-dep, they don't pull from crates.io.
+
+Maintainer flow:
 
 1. Land everything for the release on `main`. CI green.
 2. Update `CHANGELOG.md`: move the relevant items from `[Unreleased]` into a new `[X.Y.Z] — YYYY-MM-DD` section. Refresh the comparison links at the bottom.
 3. Bump the workspace `version` in `Cargo.toml` (`[workspace.package]`).
 4. Commit: `chore(release): vX.Y.Z`. Tag: `git tag -a vX.Y.Z -m "vX.Y.Z"` and push.
-5. Publish to crates.io in dependency order, waiting a few seconds between each for the index to catch up:
-   ```sh
-   for c in mdtype-core mdtype-rules-stdlib mdtype-schema-yaml \
-            mdtype-reporter-human mdtype-reporter-json mdtype; do
-     cargo publish -p "$c" && sleep 10
-   done
-   ```
-   `mdtype-tests` stays unpublished — it has `publish = false`.
+
+If the project later wants `cargo install mdtype` to work, that's six `cargo publish` calls in dep order (`mdtype-core` first, `mdtype` last); `mdtype-tests` stays unpublished (`publish = false`).
 
 ## Filing a bug
 

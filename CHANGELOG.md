@@ -43,9 +43,10 @@ exit codes, versioned JSON output.
 - **Documentation**: README (one-screen man-page), `docs/schema.md`, `docs/rules.md`,
   `docs/json-schema.md`, `docs/error-messages.md`, `docs/integrations.md`,
   `docs/extending.md`.
-- **Distribution**: published to crates.io as `mdtype-core`, `mdtype-rules-stdlib`,
-  `mdtype-schema-yaml`, `mdtype-reporter-human`, `mdtype-reporter-json`, and the `mdtype`
-  binary. Install via `cargo install mdtype`.
+- **Distribution**: source-build only (`git clone && cargo install --path crates/mdtype`).
+  The workspace is split into `mdtype-core` + four sibling crates so downstream rules /
+  sources / reporters can depend on `mdtype-core` alone, but the project does not currently
+  publish to crates.io — the binary is the product, the libraries are the extension surface.
 - **Agent skill**: `setup-mdtype` follows the [`vercel-labs/skills`](https://github.com/vercel-labs/skills)
   convention. Install with `npx skills add serejke/mdtype --skill setup-mdtype`, then
   `/setup-mdtype` inside Claude Code / Codex / Cursor / 40-odd other agents to bootstrap
