@@ -1,0 +1,7 @@
+# Locks in the Unix-shell glob semantics: `*` does not cross `/`, only `**` does.
+# `*.md` here matches ONLY top-level files (top-note.md), not deep/file.md.
+rules:
+  - glob: "*.md"
+    schema: schemas/strict.yaml
+  - glob: "deep/**/*.md"
+    schema: schemas/loose.yaml

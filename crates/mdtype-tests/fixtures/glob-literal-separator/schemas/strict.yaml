@@ -1,0 +1,10 @@
+name: strict
+description: |
+  Top-level notes — strict schema, requires title.
+frontmatter:
+  type: object
+  required: [title]
+  additionalProperties: false
+  properties:
+    title: { type: string }
+body: []

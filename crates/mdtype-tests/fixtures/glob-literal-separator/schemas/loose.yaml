@@ -1,0 +1,4 @@
+name: loose
+description: |
+  Deeper notes — loose schema, anything goes.
+# No `frontmatter` key, no body rules — accepts any file.

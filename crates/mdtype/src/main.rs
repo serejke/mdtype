@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Context};
 use clap::Parser;
-use globset::{Glob, GlobSet, GlobSetBuilder};
+use globset::{GlobBuilder, GlobSet, GlobSetBuilder};
 use mdtype_core::{
     parse_file, Arena, BodyRuleFactory, CoreValidator, Diagnostic, Reporter, Schema, SchemaSource,
     Severity, Summary, Validator,
@@ -231,8 +231,13 @@ fn build_mode(
     let entries_offset = schemas.len();
     let mut builder = GlobSetBuilder::new();
     for entry in entries {
-        let glob =
-            Glob::new(&entry.glob).with_context(|| format!("invalid glob '{}'", entry.glob))?;
+        // `literal_separator(true)` makes globs behave like Unix shell:
+        // `*` does not cross `/`; only `**` traverses directories. So
+        // `*.md` matches top-level files only, not `sub/dir/file.md`.
+        let glob = GlobBuilder::new(&entry.glob)
+            .literal_separator(true)
+            .build()
+            .with_context(|| format!("invalid glob '{}'", entry.glob))?;
         builder.add(glob);
         schemas.push(entry.schema);
     }
