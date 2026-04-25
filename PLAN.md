@@ -254,14 +254,14 @@ Goal: a dedicated workspace crate that owns every high-level tool test: scenario
 
 ### 7.7 Selection scenarios
 
-- [ ] `per-file-schema-override/` — file with `schema:` in its frontmatter; verifies replacement (not merge).
-- [ ] `non-md-files/` — `.txt`, `.png`, `.html` alongside `.md`; verifies only `.md` enters the pipeline.
-- [ ] `empty-tree/` — directory with no `.md` files; exit `0`, no diagnostics.
+- [x] `per-file-schema-override/` — file with `schema:` in its frontmatter; verifies replacement (not merge).
+- [x] `non-md-files/` — `.txt`, `.png`, `.html` alongside `.md`; verifies only `.md` enters the pipeline.
+- [x] `empty-tree/` — directory with no `.md` files; exit `0`, no diagnostics.
 
 ### 7.8 Reporter parity
 
-- [ ] Every scenario above snapshots **both** `--format human --no-color` and `--format json`. Divergence between the two is a regression in exactly one reporter.
-- [ ] Verify: `cargo test --workspace` passes; deliberately breaking any scenario fixture fails the right snapshot with a clear diff and the correct exit-code mismatch.
+- [x] Every scenario above snapshots **both** `--format human --no-color` and `--format json`. Divergence between the two is a regression in exactly one reporter.
+- [x] Verify: `cargo test --workspace` passes; deliberately breaking any scenario fixture fails the right snapshot with a clear diff and the correct exit-code mismatch.
 
 ---
 

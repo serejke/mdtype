@@ -1,0 +1,16 @@
+name: post
+description: Default schema — requires title and author.
+
+frontmatter:
+  type: object
+  required: [title, author]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+    author:
+      type: string
+    schema:
+      type: string
+
+body: []

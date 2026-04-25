@@ -1,0 +1,16 @@
+name: rfc
+description: Replacement schema for RFCs — different requirements, no author.
+
+frontmatter:
+  type: object
+  required: [title, rfc_number]
+  additionalProperties: false
+  properties:
+    title:
+      type: string
+    rfc_number:
+      type: integer
+    schema:
+      type: string
+
+body: []
