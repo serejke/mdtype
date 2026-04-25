@@ -4,7 +4,26 @@ A type checker for Markdown.
 
 Declare the shape of your `.md` files — required frontmatter fields, required body sections, forbidden constructs — in YAML. Point `mdtype` at a directory. It tells you which files don't conform.
 
-JSON Schema is to JSON what `mdtype` is to Markdown.
+JSON Schema is to JSON what `mdtype` is to Markdown. Designed to plug into pre-commit hooks, CI, and LLM agent stop hooks as a blocking gate.
+
+## Quickstart
+
+Install the binary, then let your coding agent wire up the rest of the project for you:
+
+```sh
+cargo install mdtype                                  # 1. install the binary
+npx skills add serejke/mdtype --skill setup-mdtype    # 2. install the /setup-mdtype agent skill
+```
+
+Then, inside Claude Code / Codex / Cursor:
+
+```
+/setup-mdtype
+```
+
+The skill writes `.mdtype.yaml` + a starter schema, registers mdtype with `CLAUDE.md` or `AGENTS.md` so future agent sessions treat it as a blocking gate, runs a first sweep, and offers to install the pre-commit + Stop hooks. See [`skills/README.md`](skills/README.md).
+
+Prefer a manual setup? Read [Install](#install) + [Use](#use) below.
 
 ## Install
 
@@ -58,13 +77,7 @@ Exit codes: `0` clean, `1` violations, `2` config error.
 
 ## Agent skill
 
-Bootstrap mdtype in any project with one command — the skill writes `.mdtype.yaml` + a starter schema, registers mdtype with the agent's instruction file (`CLAUDE.md` / `AGENTS.md`), and offers to install the hooks below:
-
-```sh
-npx skills add serejke/mdtype --skill setup-mdtype
-```
-
-Then invoke `/setup-mdtype` from inside the agent. Works with Claude Code, Codex, Cursor, and the other agents the [`npx skills`](https://github.com/vercel-labs/skills) CLI supports. See [`skills/README.md`](skills/README.md) for per-agent install paths and the skill's full instructions.
+The [`/setup-mdtype`](skills/setup-mdtype/SKILL.md) skill (shown in [Quickstart](#quickstart)) follows the [`npx skills`](https://github.com/vercel-labs/skills) convention and works with Claude Code, Codex, Cursor, and ~40 other coding agents. See [`skills/README.md`](skills/README.md) for per-agent install paths, global install, and the manual-copy fallback.
 
 ## Hooks
 
