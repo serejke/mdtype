@@ -1,0 +1,83 @@
+{
+  "diagnostics": [
+    {
+      "file": "./content/posts/anchor-target.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'author': link target '../authors/jane.md#bio' carries an anchor; entity references must be document-level",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/field-invalid-mixed.md",
+      "fixit": null,
+      "line": null,
+      "message": "field '/reviewers/1': expected string, found number",
+      "rule": "frontmatter.schema",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/field-invalid-mixed.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'reviewers': expected string or array of strings, found array of mixed types",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/field-invalid-scalar.md",
+      "fixit": null,
+      "line": null,
+      "message": "field '/author': expected string, found number",
+      "rule": "frontmatter.schema",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/field-invalid-scalar.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'author': expected string or array of strings, found number",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/missing-target.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'author': link target '../authors/ghost.md' not found in workspace",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/untyped-target.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'author': link target '../docs/setup.md' has no declared entity, expected 'author'",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/wrong-type-scalar.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'author': link target '../tags/rust.md': expected entity 'author', got 'tag'",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    },
+    {
+      "file": "./content/posts/wrong-type-union.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'related': link target '../authors/john.md': expected entity one of 'post', 'tag', got 'author'",
+      "rule": "types.entity_ref",
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "errors": 9,
+    "files_scanned": 13,
+    "files_with_errors": 7,
+    "warnings": 0
+  },
+  "version": "1"
+}

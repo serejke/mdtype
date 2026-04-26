@@ -11,9 +11,12 @@ pub mod forbidden_sections;
 pub mod links;
 pub mod required_sections;
 pub mod section_order;
+pub mod types;
+
+mod resolve;
 
 use mdtype_core::nodes::{AstNode, NodeValue};
-use mdtype_core::{BodyRuleFactory, WorkspaceRuleFactory};
+use mdtype_core::{BodyRuleFactory, Schema, WorkspaceRuleFactory};
 
 /// Concatenate the rendered text of a heading node's children.
 ///
@@ -49,4 +52,25 @@ pub fn register_stdlib() -> Vec<Box<dyn BodyRuleFactory>> {
 #[must_use]
 pub fn register_stdlib_workspace() -> Vec<Box<dyn WorkspaceRuleFactory>> {
     vec![Box::new(links::relative_path::Factory)]
+}
+
+/// Install schema-derived type checks into every schema that needs them.
+///
+/// Walks `schemas` once. For every schema with a non-empty
+/// [`Schema::reference_specs`](mdtype_core::Schema::reference_specs), synthesises a
+/// `types.entity_ref` workspace rule from the specs and pushes it into the schema's
+/// `workspace` Vec. The specs are drained from the schema after installation, so a
+/// second call is a no-op (idempotent).
+///
+/// Call this once from the CLI (or any front-end) after schema load completes — late
+/// enough that any per-file `schema:` overrides have been resolved and added to the
+/// pool, early enough that no rule has run yet.
+pub fn install_type_checks(schemas: &mut [Schema]) {
+    for schema in schemas {
+        if schema.reference_specs.is_empty() {
+            continue;
+        }
+        let specs = std::mem::take(&mut schema.reference_specs);
+        schema.workspace.push(types::entity_ref::build(specs));
+    }
 }

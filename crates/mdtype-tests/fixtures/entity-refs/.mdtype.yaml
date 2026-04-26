@@ -1,0 +1,9 @@
+rules:
+  - glob: "content/posts/**/*.md"
+    schema: schemas/post.yaml
+  - glob: "content/authors/**/*.md"
+    schema: schemas/author.yaml
+  - glob: "content/tags/**/*.md"
+    schema: schemas/tag.yaml
+  - glob: "content/docs/**/*.md"
+    schema: schemas/doc-page.yaml

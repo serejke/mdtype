@@ -2,7 +2,6 @@
 //!
 //! Builds a [`Workspace`] from every parsed file, runs every per-file body rule (current
 //! [`Validator`] semantics, hoisted), then runs every workspace rule against its scope.
-//! See `docs/proposals/0001-workspace-pipeline.md`.
 
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
@@ -79,7 +78,7 @@ pub fn run_workspace(
         }
     }
 
-    let ws = build_workspace(files, &parsed, reqs);
+    let ws = build_workspace(files, &parsed, schemas, schema_idx, reqs);
 
     for (i, doc_opt) in parsed.iter().enumerate() {
         let Some(doc) = doc_opt.as_ref() else {
@@ -157,6 +156,8 @@ fn make_options(reqs: Requirements) -> comrak::Options<'static> {
 fn build_workspace(
     files: &[PathBuf],
     parsed: &[Option<ParsedDocument<'_>>],
+    schemas: &[Schema],
+    schema_idx: &[Option<usize>],
     reqs: Requirements,
 ) -> Workspace {
     let mut ws = Workspace::default();
@@ -169,21 +170,28 @@ fn build_workspace(
                 .push(file.clone());
         }
     }
-    for doc in parsed.iter().flatten() {
-        let path = doc.path.clone();
-        ws.frontmatter.insert(path.clone(), doc.frontmatter.clone());
+    for (i, file) in files.iter().enumerate() {
+        let Some(doc) = parsed[i].as_ref() else {
+            continue;
+        };
+        ws.frontmatter.insert(file.clone(), doc.frontmatter.clone());
+        if let Some(s_idx) = schema_idx[i] {
+            if let Some(name) = schemas[s_idx].entity.as_deref() {
+                ws.entities.insert(file.clone(), name.to_string());
+            }
+        }
         if reqs.headings {
             let mut h = Vec::new();
             extract::extract_headings(doc, &mut h);
             if !h.is_empty() {
-                ws.headings.insert(path.clone(), h);
+                ws.headings.insert(file.clone(), h);
             }
         }
         if reqs.links_inline || reqs.links_wiki {
             let mut l = Vec::new();
             extract::extract_links(doc, reqs, &mut l);
             if !l.is_empty() {
-                ws.links.insert(path, l);
+                ws.links.insert(file.clone(), l);
             }
         }
     }

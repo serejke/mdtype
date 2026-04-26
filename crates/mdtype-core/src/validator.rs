@@ -162,10 +162,7 @@ mod tests {
 
         let schema = Schema {
             name: "empty".into(),
-            description: None,
-            frontmatter: None,
-            body: Vec::new(),
-            workspace: Vec::new(),
+            ..Schema::default()
         };
 
         let diagnostics = CoreValidator.validate(&doc, &schema);
@@ -183,7 +180,6 @@ mod tests {
 
         let schema = Schema {
             name: "needs-author".into(),
-            description: None,
             frontmatter: Some(json!({
                 "type": "object",
                 "required": ["title", "author"],
@@ -192,8 +188,7 @@ mod tests {
                     "author": { "type": "string" }
                 }
             })),
-            body: Vec::new(),
-            workspace: Vec::new(),
+            ..Schema::default()
         };
 
         let diagnostics = CoreValidator.validate(&doc, &schema);

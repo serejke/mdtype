@@ -6,6 +6,64 @@ All notable changes to `mdtype` are documented here. The format follows
 
 ## [Unreleased]
 
+A small type system for cross-document references. See [`docs/types.md`](docs/types.md).
+
+### Added
+
+- **`entity:` field on schemas** — a kind name attached to every file matched by the
+  schema. Same-name entities across multiple schemas are first-class (the entity is a
+  class, not a singleton). Per-file `schema:` override flows through.
+- **`x-entity:` JSON Schema annotation** — declares a frontmatter property as a typed
+  reference. Three forms: scalar (`{type: string, x-entity: NAME}`), array (`{type:
+array, items: {type: string, x-entity: NAME}}`), and union (`x-entity: [A, B]`). The
+  `jsonschema` crate ignores the unknown keyword per spec, so existing shape validation
+  is unaffected.
+- **`types.entity_ref` diagnostic id** with five message templates: `field_invalid`,
+  `target_anchor_unsupported`, `target_missing`, `target_untyped`, `target_type`. The
+  check is declaration-driven — there is no rule entry to enable. The `types.` prefix
+  separates schema-derived checks from user-enabled rules under `body.*`/`links.*`.
+- **Schema loader walks `frontmatter:`** for `x-entity` annotations on `properties.<name>`
+  (scalar) and `properties.<name>.items` (array). The walker rejects, at load time, any
+  `x-entity` reachable through `$ref`, `oneOf`, `anyOf`, `allOf`, `if/then/else`, or
+  `not`, and rejects `$ref` anywhere in a schema that also uses `x-entity` (the v1
+  walker does not resolve refs and silent degradation is unacceptable). All three
+  rejection paths produce precise schema-error messages naming the JSON pointer.
+- **`Workspace::entities`** — `HashMap<PathBuf, String>` populated by the runner from
+  each file's resolved schema. Always built; no `Requirements` flag.
+- **`Schema::reference_specs`** + **`ReferenceSpec` in `mdtype-core`** — the data shape
+  the loader produces and `install_type_checks` consumes.
+- **`mdtype_rules_stdlib::install_type_checks(&mut [Schema])`** — synthesises a
+  `types.entity_ref` workspace rule into each schema with a non-empty
+  `reference_specs`. Idempotent (drains specs after install).
+- **CLI integration** — one call site, after the frontmatter pre-pass, before
+  `run_workspace`. Per-file `schema:` overrides are picked up because installation
+  happens after the pool is fully populated.
+- **Three new fixtures** under `crates/mdtype-tests/fixtures/`: `entity-refs/` covers
+  every diagnostic class in one project; `entity-refs-ref-rejected/` and
+  `entity-refs-composition-rejected/` lock the schema-load rejection paths (exit 2).
+- **`examples/blog-site/` extension** — new `author.yaml` schema (`entity: author`),
+  one author file under `content/authors/`, and two new posts demonstrating one
+  happy-path typed reference and one `target_missing` failure.
+
+### Changed
+
+- **`Schema` gains public `entity: Option<String>` and `reference_specs: Vec<ReferenceSpec>`
+  fields.** Source-level break for literal-construction sites; migrate with
+  `..Schema::default()`.
+- **`Workspace` gains a public `entities: HashMap<PathBuf, String>` field.** Source-level
+  break for literal-construction sites; default empty.
+- **`build_canonical_index` is hoisted** into `mdtype-rules-stdlib::resolve` so
+  `links.relative_path` and the new `types.entity_ref` share one canonicalisation
+  helper. Internal change; no public-API impact.
+
+### Notes
+
+- The JSON output contract (`version: "1"`) is unchanged; the new `types.entity_ref`
+  diagnostic id is additive.
+- `register_stdlib_workspace()` is **not** extended — `types.entity_ref` is never
+  user-listed under `workspace:` and has no factory. It is installed only via
+  `install_type_checks`.
+
 ## [0.2.1] — 2026-04-26
 
 Bug fix: aliased wikilinks inside Markdown table cells.
@@ -20,8 +78,7 @@ Bug fix: aliased wikilinks inside Markdown table cells.
 
 ## [0.2.0] — 2026-04-26
 
-Cross-file rule support: workspace pipeline + two link-integrity rules. Design rationale
-in [`docs/proposals/0001-workspace-pipeline.md`](docs/proposals/0001-workspace-pipeline.md).
+Cross-file rule support: workspace pipeline + two link-integrity rules.
 
 ### Added
 

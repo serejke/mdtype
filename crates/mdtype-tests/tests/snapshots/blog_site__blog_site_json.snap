@@ -22,12 +22,20 @@ expression: pretty
       "message": "top-level heading '# Stray H1 — should fail body.forbid_h1' is not allowed; use '## Stray H1 — should fail body.forbid_h1' or rely on the file title",
       "rule": "body.forbid_h1",
       "severity": "error"
+    },
+    {
+      "file": "examples/blog-site/content/posts/2026-06-broken-references.md",
+      "fixit": null,
+      "line": null,
+      "message": "field 'author_profile': link target '../authors/ghost.md' not found in workspace",
+      "rule": "types.entity_ref",
+      "severity": "error"
     }
   ],
   "summary": {
-    "errors": 2,
-    "files_scanned": 5,
-    "files_with_errors": 2,
+    "errors": 3,
+    "files_scanned": 8,
+    "files_with_errors": 3,
     "warnings": 0
   },
   "version": "1"

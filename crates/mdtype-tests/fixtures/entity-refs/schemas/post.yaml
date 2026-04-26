@@ -1,0 +1,21 @@
+name: post
+entity: post
+
+frontmatter:
+  type: object
+  required: [title]
+  properties:
+    title: { type: string }
+    author:
+      type: string
+      x-entity: author
+    reviewers:
+      type: array
+      items:
+        type: string
+        x-entity: author
+    related:
+      type: array
+      items:
+        type: string
+        x-entity: [post, tag]

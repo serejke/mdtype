@@ -1,0 +1,8 @@
+name: tag
+entity: tag
+
+frontmatter:
+  type: object
+  required: [name]
+  properties:
+    name: { type: string }

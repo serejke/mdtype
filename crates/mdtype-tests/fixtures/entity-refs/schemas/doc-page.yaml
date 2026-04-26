@@ -1,0 +1,8 @@
+name: doc-page
+# Deliberately no `entity:` so doc-page files surface as untyped reference targets.
+
+frontmatter:
+  type: object
+  required: [title]
+  properties:
+    title: { type: string }

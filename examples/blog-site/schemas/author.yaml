@@ -1,0 +1,14 @@
+name: author
+description: An author profile under content/authors/.
+entity: author
+
+frontmatter:
+  type: object
+  required: [name]
+  additionalProperties: false
+  properties:
+    name:
+      type: string
+      minLength: 1
+    bio:
+      type: string

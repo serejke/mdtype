@@ -25,7 +25,7 @@ pub use parser::{
 };
 pub use rule::{BodyRule, BodyRuleFactory, WorkspaceRule, WorkspaceRuleFactory};
 pub use runner::{run_workspace, RUNNER_PARSE_RULE_ID};
-pub use schema::Schema;
+pub use schema::{ReferenceSpec, Schema};
 pub use source::{SchemaEntry, SchemaSource};
 pub use validator::{CoreValidator, Reporter, Validator, FRONTMATTER_RULE_ID};
 pub use workspace::{HeadingFact, LinkKind, LinkRef, Requirements, Workspace};

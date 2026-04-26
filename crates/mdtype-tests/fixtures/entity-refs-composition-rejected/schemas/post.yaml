@@ -1,0 +1,13 @@
+name: post
+entity: post
+
+frontmatter:
+  type: object
+  properties:
+    title: { type: string }
+    cover:
+      oneOf:
+        - type: string
+          x-entity: image-asset
+        - type: string
+          x-entity: video-asset

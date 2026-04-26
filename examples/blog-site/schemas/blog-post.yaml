@@ -1,5 +1,6 @@
 name: blog-post
 description: A blog post under content/posts/.
+entity: post
 
 frontmatter:
   type: object
@@ -18,6 +19,9 @@ frontmatter:
       minItems: 1
     author:
       type: string
+    author_profile:
+      type: string
+      x-entity: author
     draft:
       type: boolean
 

@@ -1,0 +1,8 @@
+name: author
+entity: author
+
+frontmatter:
+  type: object
+  required: [name]
+  properties:
+    name: { type: string }

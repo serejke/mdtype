@@ -1,0 +1,5 @@
+---
+name: rust
+---
+
+A tag.

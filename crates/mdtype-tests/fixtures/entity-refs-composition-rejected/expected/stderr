@@ -1,0 +1,1 @@
+mdtype: loading <scenario>/.mdtype.yaml: invalid schema: schema <scenario>/schemas/post.yaml: x-entity reachable through 'oneOf' at /properties/cover/oneOf is not supported; declare the field directly under 'properties' with type 'string' or 'array of string'

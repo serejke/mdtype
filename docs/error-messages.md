@@ -16,16 +16,23 @@ Every diagnostic emitted by `mdtype` (or by a downstream rule) is consumed by hu
 
 ## Templates
 
-| Failure class                  | Template                                                                   |
-| ------------------------------ | -------------------------------------------------------------------------- |
-| Missing required field         | `missing required field '{name}' (expected {type})`                        |
-| Type mismatch                  | `field '{name}': expected {type}, found {value}`                           |
-| Disallowed extra field         | `unexpected field '{name}' (schema declares additionalProperties=false)`   |
-| Disallowed top-level construct | `top-level {construct} '{text}' is not allowed`                            |
-| Missing required section       | `missing H{level} section '{name}'`                                        |
-| Section out of order           | `H{level} section '{name}' is out of order; should appear before '{prev}'` |
-| Section not allowed by policy  | `H{level} section '{name}' is not allowed (forbidden by schema)`           |
-| Parse / IO failure             | `{phase} failed: {detail}`                                                 |
+| Failure class                     | Template                                                                                            |
+| --------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Missing required field            | `missing required field '{name}' (expected {type})`                                                 |
+| Type mismatch                     | `field '{name}': expected {type}, found {value}`                                                    |
+| Disallowed extra field            | `unexpected field '{name}' (schema declares additionalProperties=false)`                            |
+| Disallowed top-level construct    | `top-level {construct} '{text}' is not allowed`                                                     |
+| Missing required section          | `missing H{level} section '{name}'`                                                                 |
+| Section out of order              | `H{level} section '{name}' is out of order; should appear before '{prev}'`                          |
+| Section not allowed by policy     | `H{level} section '{name}' is not allowed (forbidden by schema)`                                    |
+| Reference field has wrong shape   | `field '{field}': expected string or array of strings, found {kind}`                                |
+| Reference value carries an anchor | `field '{field}': link target '{path}' carries an anchor; entity references must be document-level` |
+| Reference target missing          | `field '{field}': link target '{path}' not found in workspace`                                      |
+| Reference target has no entity    | `field '{field}': link target '{path}' has no declared entity, expected {expected}`                 |
+| Reference target has wrong entity | `field '{field}': link target '{path}': expected entity {expected}, got '{actual}'`                 |
+| Parse / IO failure                | `{phase} failed: {detail}`                                                                          |
+
+`{expected}` is `'NAME'` for a single target and `one of 'A', 'B'` for a union of entity types.
 
 ## Anti-patterns
 

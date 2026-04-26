@@ -22,7 +22,7 @@ use mdtype_core::{
 use mdtype_reporter_human::HumanReporter;
 use mdtype_reporter_json::JsonReporter;
 use mdtype_rules_obsidian::register_obsidian;
-use mdtype_rules_stdlib::{register_stdlib, register_stdlib_workspace};
+use mdtype_rules_stdlib::{install_type_checks, register_stdlib, register_stdlib_workspace};
 use mdtype_schema_yaml::{config_walk_up, load_schema_file, YamlSchemaSource};
 
 const PARSE_RULE_ID: &str = "mdtype.parse";
@@ -140,6 +140,12 @@ fn run(cli: &Cli) -> anyhow::Result<ExitCode> {
         runner_files.push(file.clone());
         runner_schema_idx.push(schema_idx);
     }
+
+    // Synthesize schema-derived type checks (currently `types.entity_ref`) into each
+    // schema's workspace pipeline. Must run after all schemas — including per-file
+    // `schema:` overrides loaded during the pre-pass — are in the pool, and before any
+    // rule executes.
+    install_type_checks(&mut schemas);
 
     let runner_diagnostics = run_workspace(&runner_files, &schemas, &runner_schema_idx)
         .context("running workspace pipeline")?;

@@ -1,0 +1,14 @@
+name: post
+entity: post
+
+frontmatter:
+  type: object
+  $defs:
+    authorRef:
+      type: string
+      x-entity: author
+  properties:
+    title: { type: string }
+    author:
+      allOf:
+        - $ref: "#/$defs/authorRef"

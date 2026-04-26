@@ -12,10 +12,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use mdtype_core::{
-    BodyRule, BodyRuleFactory, Error, Schema, SchemaEntry, SchemaSource, WorkspaceRule,
-    WorkspaceRuleFactory,
+    BodyRule, BodyRuleFactory, Error, ReferenceSpec, Schema, SchemaEntry, SchemaSource,
+    WorkspaceRule, WorkspaceRuleFactory,
 };
 use serde::Deserialize;
+
+mod entity_walker;
 
 /// File name of the glob-map config that `mdtype` discovers by walking up from the cwd.
 pub const CONFIG_FILE_NAME: &str = ".mdtype.yaml";
@@ -139,6 +141,18 @@ pub fn load_schema_file(
     })?;
     let parsed: SchemaFile = serde_yaml::from_str(&raw)
         .map_err(|e| Error::Schema(format!("malformed schema {}: {e}", path.display())))?;
+
+    let entity = match parsed.entity {
+        None => None,
+        Some(name) if name.is_empty() => {
+            return Err(Error::Schema(format!(
+                "schema {}: `entity` must be a non-empty string",
+                path.display()
+            )));
+        }
+        Some(name) => Some(name),
+    };
+
     let frontmatter = match parsed.frontmatter {
         Some(value) => Some(serde_json::to_value(value).map_err(|e| {
             Error::Schema(format!(
@@ -147,6 +161,11 @@ pub fn load_schema_file(
             ))
         })?),
         None => None,
+    };
+
+    let reference_specs: Vec<ReferenceSpec> = match frontmatter.as_ref() {
+        Some(fm) => entity_walker::walk(fm, path)?,
+        None => Vec::new(),
     };
 
     let body_lookup = build_body_lookup(body_factories);
@@ -176,7 +195,9 @@ pub fn load_schema_file(
     Ok(Schema {
         name: parsed.name,
         description: parsed.description,
+        entity,
         frontmatter,
+        reference_specs,
         body,
         workspace,
     })
@@ -295,6 +316,8 @@ struct SchemaFile {
     name: String,
     #[serde(default)]
     description: Option<String>,
+    #[serde(default)]
+    entity: Option<String>,
     #[serde(default)]
     frontmatter: Option<serde_yaml::Value>,
     #[serde(default)]

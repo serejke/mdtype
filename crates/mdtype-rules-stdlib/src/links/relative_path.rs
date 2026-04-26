@@ -1,7 +1,7 @@
 //! `links.relative_path` — resolve inline Markdown links against the source file's
 //! directory and report broken targets and broken anchors.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -10,6 +10,8 @@ use mdtype_core::{
     WorkspaceRuleFactory,
 };
 use serde::Deserialize;
+
+use crate::resolve::build_canonical_index;
 
 /// Stable rule id, exposed for downstream crates to reference.
 pub const ID: &str = "links.relative_path";
@@ -134,16 +136,6 @@ struct Params {
     ignore_schemes: Option<Vec<String>>,
     #[serde(default)]
     check_anchors: Option<bool>,
-}
-
-fn build_canonical_index(files: &[PathBuf]) -> HashMap<PathBuf, PathBuf> {
-    let mut map: HashMap<PathBuf, PathBuf> = HashMap::with_capacity(files.len());
-    for file in files {
-        if let Ok(canonical) = fs::canonicalize(file) {
-            map.insert(canonical, file.clone());
-        }
-    }
-    map
 }
 
 fn extract_scheme(target: &str) -> Option<&str> {

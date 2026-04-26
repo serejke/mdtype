@@ -6,15 +6,18 @@ For body rules referenced from the `body:` block, see [`docs/rules.md`](./rules.
 
 ## Top-level fields
 
-| Field         | Type   | Required | Notes                                                                                                                                |
-| ------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `name`        | string | yes      | Stable identifier, surfaced in error messages and useful when more than one schema is loaded. Conventionally the file stem.          |
-| `description` | string | no       | Free-form description; multi-line YAML strings are supported. Surfaced in human reports.                                             |
-| `frontmatter` | object | no       | A [JSON Schema 2020-12][jsonschema] document, validated against the file's parsed YAML frontmatter. Omit to skip frontmatter checks. |
-| `body`        | array  | no       | Ordered list of body-rule invocations. Empty or missing means no body checks.                                                        |
-| `workspace`   | array  | no       | Ordered list of workspace-rule invocations. Empty or missing means no cross-file checks.                                             |
+| Field         | Type   | Required | Notes                                                                                                                                                             |
+| ------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | string | yes      | Stable identifier, surfaced in error messages and useful when more than one schema is loaded. Conventionally the file stem.                                       |
+| `description` | string | no       | Free-form description; multi-line YAML strings are supported. Surfaced in human reports.                                                                          |
+| `entity`      | string | no       | Entity name (a kind) attached to every file matched by this schema. Enables type-checked cross-file references — see [`docs/types.md`](./types.md).               |
+| `frontmatter` | object | no       | A [JSON Schema 2020-12][jsonschema] document, validated against the file's parsed YAML frontmatter. May carry inline `x-entity` annotations; see `docs/types.md`. |
+| `body`        | array  | no       | Ordered list of body-rule invocations. Empty or missing means no body checks.                                                                                     |
+| `workspace`   | array  | no       | Ordered list of workspace-rule invocations. Empty or missing means no cross-file checks.                                                                          |
 
 [jsonschema]: https://json-schema.org/specification-links#2020-12
+
+`entity:` and inline `x-entity:` annotations together define a small type system for cross-document references. They are documented separately in [`docs/types.md`](./types.md). The schema loader walks the `frontmatter:` JSON Schema for `x-entity` keys on string-typed properties or array items and synthesises a `types.entity_ref` check that fires implicitly — there is no rule entry to enable.
 
 ## `frontmatter`
 

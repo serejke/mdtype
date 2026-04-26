@@ -1,0 +1,24 @@
+./content/posts/anchor-target.md
+  error[types.entity_ref] field 'author': link target '../authors/jane.md#bio' carries an anchor; entity references must be document-level
+
+./content/posts/field-invalid-mixed.md
+  error[frontmatter.schema] field '/reviewers/1': expected string, found number
+  error[types.entity_ref] field 'reviewers': expected string or array of strings, found array of mixed types
+
+./content/posts/field-invalid-scalar.md
+  error[frontmatter.schema] field '/author': expected string, found number
+  error[types.entity_ref] field 'author': expected string or array of strings, found number
+
+./content/posts/missing-target.md
+  error[types.entity_ref] field 'author': link target '../authors/ghost.md' not found in workspace
+
+./content/posts/untyped-target.md
+  error[types.entity_ref] field 'author': link target '../docs/setup.md' has no declared entity, expected 'author'
+
+./content/posts/wrong-type-scalar.md
+  error[types.entity_ref] field 'author': link target '../tags/rust.md': expected entity 'author', got 'tag'
+
+./content/posts/wrong-type-union.md
+  error[types.entity_ref] field 'related': link target '../authors/john.md': expected entity one of 'post', 'tag', got 'author'
+
+mdtype: 9 errors across 7 files (13 files scanned)

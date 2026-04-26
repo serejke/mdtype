@@ -105,4 +105,8 @@ pub struct Workspace {
     /// Path → frontmatter JSON for every successfully pre-passed file. `Null` for files
     /// without a frontmatter block.
     pub frontmatter: HashMap<PathBuf, serde_json::Value>,
+    /// Path → entity name for every file whose resolved schema declared `entity:`.
+    /// Files matched by no schema, or by a schema without `entity:`, are absent from the
+    /// map. See `docs/types.md`.
+    pub entities: HashMap<PathBuf, String>,
 }

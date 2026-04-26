@@ -1,0 +1,1 @@
+mdtype: loading <scenario>/.mdtype.yaml: invalid schema: schema <scenario>/schemas/post.yaml: `$ref` is not supported alongside `x-entity` in v1; declare typed-reference fields directly under 'properties' (without $ref) or remove the x-entity annotations
