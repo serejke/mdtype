@@ -6,6 +6,40 @@ All notable changes to `mdtype` are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+- **The `workspace:` block in schemas was renamed to `links:`** and the rule-id
+  shortform now strips the `links.` prefix. The old name leaked the runtime
+  trait split (`WorkspaceRule`) into user vocabulary; the new name describes
+  what users actually configure (cross-file _link_ integrity rules), parallels
+  the `body:` block, and matches the convention `body:` already follows for
+  body-rule shortforms. The migration is mechanical — for every schema:
+
+  ```yaml
+  # before
+  workspace:
+    - rule: links.relative_path
+    - rule: links.obsidian_vault
+      on_ambiguous: error
+
+  # after
+  links:
+    - rule: relative-path
+    - rule: obsidian-vault
+      on_ambiguous: error
+  ```
+
+  Both the canonical id (e.g. `links.relative_path`) and the kebab-case
+  shortform with the prefix stripped (e.g. `relative-path`) are accepted.
+  Diagnostic ids are unchanged. A schema that still declares `workspace:` is
+  rejected at load time with a precise migration hint.
+
+  Internal Rust API is unchanged — the `WorkspaceRule` trait keeps its name and
+  signature; only the YAML surface moves. The schema-yaml loader's public
+  `load_schema_file` and `YamlSchemaSource::new` signatures are unchanged.
+
+### Added (since the previous Unreleased entry below)
+
 A small type system for cross-document references. See [`docs/types.md`](docs/types.md).
 
 ### Added

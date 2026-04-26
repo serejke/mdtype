@@ -250,12 +250,10 @@ workspace.push(Box::new(my_rules::unique_frontmatter_ids::Factory));
 let workspace_factories = std::sync::Arc::new(workspace);
 ```
 
-YAML reference (workspace rule ids are canonical-only):
+**Where it lives in YAML.** The `links:` block in schemas routes to factories whose id starts with `links.` — that's the only YAML home today for user-listed cross-file rules. A rule like `frontmatter.unique_id` (id outside the `links.` namespace) cannot be declared in YAML in v1; a downstream front-end would either:
 
-```yaml
-workspace:
-  - rule: frontmatter.unique_id
-```
+1. Rename the rule into the link family (e.g. `links.unique_id`) so it routes through `links:`, **or**
+2. Skip the YAML factory route and install the rule directly into each `Schema::workspace` Vec from a custom `SchemaSource` or post-load hook (the same pattern `mdtype_rules_stdlib::install_type_checks` uses for the schema-derived `types.entity_ref` check; see `crates/mdtype-rules-stdlib/src/lib.rs`).
 
 If your rule needs facts beyond frontmatter — headings, inline links, wikilinks — set the matching flags in `requires()`. The runner unions every enabled rule's requirements and runs the corresponding core extractors. A rule that needs a fact kind not yet shipped in `mdtype-core` must extend `Requirements` (and the matching extractor) in core; this is the trait-boundary cost of keeping rules pure judges.
 

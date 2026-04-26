@@ -1,8 +1,8 @@
 //! YAML-backed `SchemaSource`.
 //!
 //! Reads a `.mdtype.yaml` glob-map config, loads each referenced schema file, parses
-//! frontmatter blocks as JSON Schema values and body / workspace blocks as lists of rule
-//! invocations resolved via caller-supplied factory registries.
+//! frontmatter blocks as JSON Schema values and `body:` / `links:` blocks as lists of
+//! rule invocations resolved via caller-supplied factory registries.
 
 #![forbid(unsafe_code)]
 
@@ -25,8 +25,9 @@ pub const CONFIG_FILE_NAME: &str = ".mdtype.yaml";
 /// YAML-backed source.
 ///
 /// Constructed with the path to `.mdtype.yaml` and two factory registries. Each `body:`
-/// or `workspace:` entry in a referenced schema file is resolved against the matching
-/// registry; an unknown rule id surfaces as [`Error::Schema`] (CLI exit `2`).
+/// entry in a referenced schema file is resolved against `body_factories` and each
+/// `links:` entry against `workspace_factories` filtered to ids prefixed with `links.`;
+/// an unknown rule id surfaces as [`Error::Schema`] (CLI exit `2`).
 pub struct YamlSchemaSource {
     /// Path to `.mdtype.yaml`.
     pub config_path: PathBuf,
@@ -119,17 +120,21 @@ pub fn config_walk_up(start: &Path) -> Option<PathBuf> {
 
 /// Load a single schema YAML file off disk and parse it into [`Schema`].
 ///
-/// Each `body:` entry is resolved against `body_factories`; each `workspace:` entry
-/// against `workspace_factories`. Body-rule ids accept the canonical factory id and the
-/// kebab-case shortform (canonical id with `body.` stripped and `_` rewritten to `-`).
-/// Workspace-rule ids are canonical-only in v1 — the diagnostic `rule` field carries the
-/// canonical form regardless of how the YAML referenced it.
+/// Each `body:` entry is resolved against `body_factories`; each `links:` entry against
+/// `workspace_factories` filtered to ids prefixed with `links.`. Both blocks accept
+/// the canonical factory id and the kebab-case shortform (canonical id with the
+/// `body.` or `links.` prefix stripped and `_` rewritten to `-`). The diagnostic `rule`
+/// field carries the canonical form regardless of how the YAML referenced it.
+///
+/// The legacy `workspace:` block was removed; a schema that still declares one fails
+/// to load with a precise migration hint.
 ///
 /// # Errors
 ///
 /// Returns [`Error::Io`] if `path` cannot be read and [`Error::Schema`] if the YAML is
 /// malformed, the frontmatter section cannot be converted to JSON, an entry omits its
-/// `rule` key, or a referenced rule id has no matching factory in either registry.
+/// `rule` key, a referenced rule id has no matching factory in either registry, or the
+/// schema declares the legacy `workspace:` block.
 pub fn load_schema_file(
     path: &Path,
     body_factories: &[Box<dyn BodyRuleFactory>],
@@ -180,15 +185,22 @@ pub fn load_schema_file(
         )?);
     }
 
-    let workspace_lookup = build_workspace_lookup(workspace_factories);
-    let mut workspace: Vec<Box<dyn WorkspaceRule>> = Vec::with_capacity(parsed.workspace.len());
-    for (idx, entry) in parsed.workspace.into_iter().enumerate() {
-        workspace.push(build_workspace_rule(
+    if parsed.workspace.is_some() {
+        return Err(Error::Schema(format!(
+            "schema {}: the `workspace:` block was removed; move link rules under `links:` instead (and drop the `links.` prefix on rule ids — `links: [- rule: relative_path]`)",
+            path.display()
+        )));
+    }
+
+    let links_lookup = build_links_lookup(workspace_factories);
+    let mut workspace: Vec<Box<dyn WorkspaceRule>> = Vec::with_capacity(parsed.links.len());
+    for (idx, entry) in parsed.links.into_iter().enumerate() {
+        workspace.push(build_links_rule(
             path,
             idx,
             entry,
             workspace_factories,
-            &workspace_lookup,
+            &links_lookup,
         )?);
     }
 
@@ -220,17 +232,17 @@ fn build_body_rule(
     factories[factory_idx].build(&params_json)
 }
 
-fn build_workspace_rule(
+fn build_links_rule(
     schema_path: &Path,
     idx: usize,
     entry: serde_yaml::Value,
     factories: &[Box<dyn WorkspaceRuleFactory>],
     lookup: &HashMap<String, usize>,
 ) -> Result<Box<dyn WorkspaceRule>, Error> {
-    let (rule_id, params_json) = parse_rule_entry(schema_path, "workspace", idx, entry)?;
+    let (rule_id, params_json) = parse_rule_entry(schema_path, "links", idx, entry)?;
     let factory_idx = lookup.get(&rule_id).copied().ok_or_else(|| {
         Error::Schema(format!(
-            "unknown workspace-rule id `{rule_id}` in workspace[{idx}] of {}",
+            "unknown link-rule id `{rule_id}` in links[{idx}] of {}",
             schema_path.display()
         ))
     })?;
@@ -292,10 +304,24 @@ fn build_body_lookup(factories: &[Box<dyn BodyRuleFactory>]) -> HashMap<String, 
     map
 }
 
-fn build_workspace_lookup(factories: &[Box<dyn WorkspaceRuleFactory>]) -> HashMap<String, usize> {
+/// Lookup table for the `links:` block. Each `links.*` factory id maps to its index
+/// under both the canonical id (`links.relative_path`) and the kebab-case shortform
+/// with the `links.` prefix stripped (`relative-path`). Mirrors `build_body_lookup`.
+///
+/// Workspace-rule factories whose id does not start with `links.` are intentionally
+/// omitted — they are not addressable from the `links:` block. Today the runtime
+/// `types.entity_ref` rule is the only such case, and it is installed implicitly
+/// via [`mdtype_rules_stdlib::install_type_checks`], not via the YAML loader.
+fn build_links_lookup(factories: &[Box<dyn WorkspaceRuleFactory>]) -> HashMap<String, usize> {
     let mut map: HashMap<String, usize> = HashMap::new();
     for (i, factory) in factories.iter().enumerate() {
-        map.insert(factory.id().to_string(), i);
+        let id = factory.id();
+        let Some(short) = id.strip_prefix("links.") else {
+            continue;
+        };
+        map.insert(id.to_string(), i);
+        let kebab = short.replace('_', "-");
+        map.entry(kebab).or_insert(i);
     }
     map
 }
@@ -323,7 +349,12 @@ struct SchemaFile {
     #[serde(default)]
     body: Vec<serde_yaml::Value>,
     #[serde(default)]
-    workspace: Vec<serde_yaml::Value>,
+    links: Vec<serde_yaml::Value>,
+    /// Legacy detection. The `workspace:` block was removed; if a schema still
+    /// declares one we surface a precise migration error instead of silently
+    /// dropping its rules.
+    #[serde(default)]
+    workspace: Option<serde_yaml::Value>,
 }
 
 #[cfg(test)]
@@ -331,7 +362,12 @@ mod tests {
     use std::fs;
     use std::sync::Arc;
 
-    use mdtype_core::{BodyRule, BodyRuleFactory, Diagnostic, Error, ParsedDocument, SchemaSource};
+    use std::path::PathBuf;
+
+    use mdtype_core::{
+        BodyRule, BodyRuleFactory, Diagnostic, Error, ParsedDocument, Requirements, SchemaSource,
+        Workspace, WorkspaceRule, WorkspaceRuleFactory,
+    };
     use tempfile::tempdir;
 
     use super::{config_walk_up, load_schema_file, YamlSchemaSource, CONFIG_FILE_NAME};
@@ -356,6 +392,31 @@ mod tests {
 
     fn dummy_registry() -> Arc<Vec<Box<dyn BodyRuleFactory>>> {
         Arc::new(vec![Box::new(DummyFactory) as Box<dyn BodyRuleFactory>])
+    }
+
+    struct DummyLinkRule;
+    impl WorkspaceRule for DummyLinkRule {
+        fn id(&self) -> &'static str {
+            "links.relative_path"
+        }
+        fn requires(&self) -> Requirements {
+            Requirements::default()
+        }
+        fn check(&self, _ws: &Workspace, _scope: &[PathBuf], _out: &mut Vec<Diagnostic>) {}
+    }
+
+    struct DummyLinkFactory;
+    impl WorkspaceRuleFactory for DummyLinkFactory {
+        fn id(&self) -> &'static str {
+            "links.relative_path"
+        }
+        fn build(&self, _params: &serde_json::Value) -> Result<Box<dyn WorkspaceRule>, Error> {
+            Ok(Box::new(DummyLinkRule))
+        }
+    }
+
+    fn dummy_link_registry() -> Vec<Box<dyn WorkspaceRuleFactory>> {
+        vec![Box::new(DummyLinkFactory) as Box<dyn WorkspaceRuleFactory>]
     }
 
     #[test]
@@ -445,6 +506,91 @@ mod tests {
                 assert!(
                     msg.contains("not-a-real-rule"),
                     "expected error to mention the rule id, got: {msg}"
+                );
+            }
+            Err(other) => panic!("expected Error::Schema, got {other}"),
+            Ok(_) => panic!("expected error, got Ok"),
+        }
+    }
+
+    #[test]
+    fn link_rule_resolves_via_kebab_alias() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("post.yaml");
+        fs::write(
+            &schema_path,
+            "name: post\nlinks:\n  - rule: relative-path\n",
+        )
+        .unwrap();
+
+        let body_factories: Vec<Box<dyn BodyRuleFactory>> = Vec::new();
+        let link_factories = dummy_link_registry();
+        let schema =
+            load_schema_file(&schema_path, &body_factories, &link_factories).expect("load");
+        assert_eq!(schema.workspace.len(), 1);
+        assert_eq!(schema.workspace[0].id(), "links.relative_path");
+    }
+
+    #[test]
+    fn link_rule_resolves_via_canonical_id() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("post.yaml");
+        fs::write(
+            &schema_path,
+            "name: post\nlinks:\n  - rule: links.relative_path\n",
+        )
+        .unwrap();
+
+        let body_factories: Vec<Box<dyn BodyRuleFactory>> = Vec::new();
+        let link_factories = dummy_link_registry();
+        let schema =
+            load_schema_file(&schema_path, &body_factories, &link_factories).expect("load");
+        assert_eq!(schema.workspace.len(), 1);
+    }
+
+    #[test]
+    fn unknown_link_rule_is_a_schema_error() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("post.yaml");
+        fs::write(
+            &schema_path,
+            "name: post\nlinks:\n  - rule: not-a-real-link-rule\n",
+        )
+        .unwrap();
+
+        let body_factories: Vec<Box<dyn BodyRuleFactory>> = Vec::new();
+        let link_factories = dummy_link_registry();
+        let result = load_schema_file(&schema_path, &body_factories, &link_factories);
+        match result {
+            Err(Error::Schema(msg)) => {
+                assert!(
+                    msg.contains("not-a-real-link-rule") && msg.contains("link-rule"),
+                    "expected error to mention the rule id and link-rule context, got: {msg}"
+                );
+            }
+            Err(other) => panic!("expected Error::Schema, got {other}"),
+            Ok(_) => panic!("expected error, got Ok"),
+        }
+    }
+
+    #[test]
+    fn legacy_workspace_block_is_rejected_with_migration_hint() {
+        let dir = tempdir().expect("tempdir");
+        let schema_path = dir.path().join("post.yaml");
+        fs::write(
+            &schema_path,
+            "name: post\nworkspace:\n  - rule: links.relative_path\n",
+        )
+        .unwrap();
+
+        let body_factories: Vec<Box<dyn BodyRuleFactory>> = Vec::new();
+        let link_factories = dummy_link_registry();
+        let result = load_schema_file(&schema_path, &body_factories, &link_factories);
+        match result {
+            Err(Error::Schema(msg)) => {
+                assert!(
+                    msg.contains("`workspace:` block was removed") && msg.contains("`links:`"),
+                    "expected migration hint, got: {msg}"
                 );
             }
             Err(other) => panic!("expected Error::Schema, got {other}"),

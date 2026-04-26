@@ -4,7 +4,7 @@
 
 1. **Frontmatter shape** — declared via the schema's `frontmatter:` JSON Schema.
 2. **Body structure** — declared via the schema's `body:` rule list.
-3. **Cross-file edges and types** — declared either via the `workspace:` rule list (rules you opt into; see [`docs/rules.md`](./rules.md)) or via inline annotations on the schema itself. This page covers the third layer's **declaration-driven** subset.
+3. **Cross-file edges and types** — declared either via the `links:` rule list (link-integrity rules you opt into; see [`docs/rules.md`](./rules.md)) or via inline annotations on the schema itself. This page covers the third layer's **declaration-driven** subset.
 
 Schema-derived type checks fire because a schema declares them inline — there is no rule entry to enable, no parameters to pass. The user surface is two YAML keywords (`entity:` and `x-entity:`) that together describe a typed graph; the runtime mechanics are hidden.
 

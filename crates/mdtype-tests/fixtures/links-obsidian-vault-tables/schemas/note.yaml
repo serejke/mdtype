@@ -6,7 +6,7 @@ description: |
   the content. Without that wiring, every aliased wikilink in a table would be reported
   as an unresolved target.
 
-workspace:
-  - rule: links.obsidian_vault
+links:
+  - rule: obsidian-vault
     on_ambiguous: error
     check_anchors: true

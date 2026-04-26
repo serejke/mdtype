@@ -1,7 +1,7 @@
 name: vault-note
 description: Both relative-path and Obsidian-vault rules in one schema.
 
-workspace:
-  - rule: links.relative_path
-  - rule: links.obsidian_vault
+links:
+  - rule: relative-path
+  - rule: obsidian-vault
     on_ambiguous: error

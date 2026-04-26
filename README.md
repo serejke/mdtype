@@ -171,7 +171,7 @@ Any directory with more than two authors and more than two months on it. The sch
 Every layer of `mdtype` is a trait in `mdtype-core`:
 
 - A **body rule** examines a single parsed AST and appends diagnostics. ~50 lines for a typical rule.
-- A **workspace rule** examines the whole indexed file set (paths, headings, links, frontmatter, entities) and judges its scope.
+- A **link (cross-file) rule** examines the whole indexed file set (paths, headings, links, frontmatter, entities) and judges its scope. Link rules are listed under a schema's `links:` block.
 - A **schema source** produces `(glob, Schema)` pairs from any backing store — YAML on disk is the default, but JSON, an HTTP service, or a hand-built table are all fair game.
 - A **reporter** writes diagnostics to any `io::Write`. Built-ins are `human` and `json`; SARIF, JUnit, or Slack-formatted output is one trait impl away.
 
@@ -187,7 +187,7 @@ External crates plug new behaviour in without patching core or the CLI. See [`do
 
 - [`docs/schema.md`](docs/schema.md) — schema file format
 - [`docs/types.md`](docs/types.md) — `entity:`, `x-entity:`, typed cross-document references
-- [`docs/rules.md`](docs/rules.md) — built-in body and workspace rules
+- [`docs/rules.md`](docs/rules.md) — built-in body and link rules
 - [`docs/json-schema.md`](docs/json-schema.md) — JSON output contract
 - [`docs/error-messages.md`](docs/error-messages.md) — diagnostic message style guide
 - [`docs/integrations.md`](docs/integrations.md) — pre-commit, CI, agent stop hook

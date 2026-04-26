@@ -13,7 +13,7 @@ For body rules referenced from the `body:` block, see [`docs/rules.md`](./rules.
 | `entity`      | string | no       | Entity name (a kind) attached to every file matched by this schema. Enables type-checked cross-file references — see [`docs/types.md`](./types.md).               |
 | `frontmatter` | object | no       | A [JSON Schema 2020-12][jsonschema] document, validated against the file's parsed YAML frontmatter. May carry inline `x-entity` annotations; see `docs/types.md`. |
 | `body`        | array  | no       | Ordered list of body-rule invocations. Empty or missing means no body checks.                                                                                     |
-| `workspace`   | array  | no       | Ordered list of workspace-rule invocations. Empty or missing means no cross-file checks.                                                                          |
+| `links`       | array  | no       | Ordered list of link-rule invocations (cross-file integrity checks). Empty or missing means no link checks.                                                       |
 
 [jsonschema]: https://json-schema.org/specification-links#2020-12
 
@@ -49,21 +49,23 @@ Both the canonical id (e.g. `body.forbid_h1`) and the kebab-case shortform (`for
 
 Rules execute in declaration order. Each contributes zero or more diagnostics; the validator then sorts the full list by `(file, line, rule)` for stable output.
 
-## `workspace`
+## `links`
 
-Cross-file rules. Each entry is a mapping with a required `rule` key plus rule-specific parameters:
+Link-integrity rules. Each entry is a mapping with a required `rule` key plus rule-specific parameters:
 
 ```yaml
-workspace:
-  - rule: links.relative_path
-  - rule: links.obsidian_vault
+links:
+  - rule: relative-path
+  - rule: obsidian-vault
     on_ambiguous: error
     check_anchors: true
 ```
 
-Workspace rules run after every file is parsed. Each rule declares which fact kinds it needs (headings, inline links, wikilinks); the runner unions those declarations across the run, gathers the facts once, then judges each rule against the files attached to its schema. The same rule listed in two schemas with different parameters produces two independent rule instances — neither bleeds into the other.
+Link rules run after every file is parsed. Each rule declares which fact kinds it needs (headings, inline links, wikilinks); the runner unions those declarations across the run, gathers the facts once, then judges each rule against the files attached to its schema. The same rule listed in two schemas with different parameters produces two independent rule instances — neither bleeds into the other.
 
-Workspace rule ids are canonical-only in v1 (no kebab shortform). The catalogue lives in [`docs/rules.md`](./rules.md). Unknown rule ids raise a config error.
+Both the canonical id (e.g. `links.relative_path`) and the kebab-case shortform with the `links.` prefix stripped (`relative-path`) are accepted in YAML; diagnostics always carry the canonical id. The catalogue lives in [`docs/rules.md`](./rules.md). Unknown rule ids raise a config error.
+
+> **Migrating from `workspace:`.** Earlier versions of `mdtype` listed link rules under a `workspace:` block. That block was removed; move the entries under `links:` and drop the `links.` prefix on rule ids. A schema that still declares `workspace:` fails to load with a precise migration hint.
 
 ## One root config per project (no merging)
 

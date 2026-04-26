@@ -3,7 +3,7 @@
 Every rule shipped with `mdtype` is documented here. Each rule has a stable id (the value that appears on the `rule` field of every diagnostic) and is referenced from a schema:
 
 - **Body rules** live in `mdtype-rules-stdlib` and run per-file under the `body:` block. They accept a kebab-case shortform in YAML alongside the canonical id.
-- **Workspace rules** live in `mdtype-rules-stdlib` and `mdtype-rules-obsidian` and run after every file is parsed; they answer cross-file questions and go under the `workspace:` block. Workspace rules are canonical-id-only in v1.
+- **Link rules** live in `mdtype-rules-stdlib` and `mdtype-rules-obsidian` and run after every file is parsed; they answer cross-file questions about link integrity and go under the `links:` block. Both the canonical id (e.g. `links.relative_path`) and the kebab-case shortform with the `links.` prefix stripped (e.g. `relative-path`) are accepted in YAML.
 
 ## Body Rules
 
@@ -99,23 +99,23 @@ ok
 remember to remove this before shipping
 ```
 
-## Workspace Rules
+## Link Rules
 
-Workspace rules answer cross-file questions: does this link resolve, is this basename ambiguous, do anchors point to real headings? They run after every file is parsed; the runner builds a `Workspace` index of files / headings / links / frontmatter, then each enabled rule judges its scope. Rules emit diagnostics only for files attached to their schema, but may freely _read_ facts about any file in the workspace (a link in one file may resolve to another file the rule never judges).
+Link rules answer cross-file questions: does this link resolve, is this basename ambiguous, do anchors point to real headings? They run after every file is parsed; the runner builds a workspace index of files / headings / links / frontmatter, then each enabled rule judges its scope. Rules emit diagnostics only for files attached to their schema, but may freely _read_ facts about any file in the workspace (a link in one file may resolve to another file the rule never judges).
 
-Each rule declares its required fact kinds. The runner unions those declarations across all enabled rules and configures the parser accordingly — for example, no rule requires `links_wiki` means comrak's wikilink extension stays off and `[[ ]]` is treated as ordinary text.
+Each rule declares its required fact kinds. The runner unions those declarations across all enabled rules and configures the parser accordingly — for example, no rule requires wikilinks means comrak's wikilink extension stays off and `[[ ]]` is treated as ordinary text.
 
 ### `links.relative_path`
 
-Crate: `mdtype-rules-stdlib`. Parameters: `ignore_schemes: [String]` (default `[http, https, mailto, tel]`), `check_anchors: bool` (default `true`).
+Crate: `mdtype-rules-stdlib`. YAML alias under `links:`: `relative-path`. Parameters: `ignore_schemes: [String]` (default `[http, https, mailto, tel]`), `check_anchors: bool` (default `true`).
 
 Resolves inline Markdown links (`[text](path)`) against the source file's directory. The link is judged against the workspace, not the local filesystem: a target that exists on disk but was not part of the walked file set is reported as missing, matching the user's expectation that `mdtype <vault>` checks links _within_ that vault.
 
 Anchors (`#fragment`) are matched against the target file's heading slugs (GitHub-flavored: lowercase, whitespace and underscores collapsed to `-`, punctuation dropped). A same-file anchor link (`[t](#section)`) checks against the source file's own headings. Schemes listed in `ignore_schemes` are skipped — typical case is external URLs you don't want flagged.
 
 ```yaml
-workspace:
-  - rule: links.relative_path
+links:
+  - rule: relative-path
     check_anchors: true
     ignore_schemes: [http, https, mailto, tel]
 ```
@@ -129,7 +129,7 @@ workspace:
 
 ### `links.obsidian_vault`
 
-Crate: `mdtype-rules-obsidian`. Parameters: `on_ambiguous: error | warn | first-match` (default `error`), `check_anchors: bool` (default `true`).
+Crate: `mdtype-rules-obsidian`. YAML alias under `links:`: `obsidian-vault`. Parameters: `on_ambiguous: error | warn | first-match` (default `error`), `check_anchors: bool` (default `true`).
 
 Resolves Obsidian-flavored wikilinks (`[[Target]]`, `[[Target|Alias]]`, `[[Target#Heading]]`) using Obsidian's policy:
 
@@ -141,8 +141,8 @@ Resolves Obsidian-flavored wikilinks (`[[Target]]`, `[[Target|Alias]]`, `[[Targe
 Anchor matching uses the target file's raw heading text (Obsidian's convention), not the GitHub slug. `[[Note#Real Heading]]` matches a heading written exactly as `## Real Heading`.
 
 ```yaml
-workspace:
-  - rule: links.obsidian_vault
+links:
+  - rule: obsidian-vault
     on_ambiguous: error
     check_anchors: true
 ```
@@ -155,4 +155,4 @@ workspace:
 [[Note|Friendly Name]] <-- alias does not affect resolution
 ```
 
-The two link rules are independent. Listing both in the same schema's `workspace:` block is supported: `links.relative_path` only judges inline `[t](path)` links, `links.obsidian_vault` only judges `[[ ]]` wikilinks, neither double-flags the same source.
+The two link rules are independent. Listing both in the same schema's `links:` block is supported: `links.relative_path` only judges inline `[t](path)` links, `links.obsidian_vault` only judges `[[ ]]` wikilinks, neither double-flags the same source.

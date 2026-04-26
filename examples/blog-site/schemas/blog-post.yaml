@@ -35,6 +35,6 @@ body:
   - rule: forbidden-sections
     sections: [TODO, Scratch]
 
-workspace:
-  - rule: links.relative_path
+links:
+  - rule: relative-path
     check_anchors: true

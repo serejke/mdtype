@@ -10,7 +10,7 @@ frontmatter:
       type: string
       minLength: 1
 
-workspace:
-  - rule: links.obsidian_vault
+links:
+  - rule: obsidian-vault
     on_ambiguous: error
     check_anchors: true
