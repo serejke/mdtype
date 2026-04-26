@@ -841,7 +841,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "mdtype"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -857,7 +857,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "comrak",
  "globset",
@@ -871,7 +871,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-reporter-human"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "insta",
  "mdtype-core",
@@ -880,7 +880,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-reporter-json"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "insta",
  "mdtype-core",
@@ -890,7 +890,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-rules-obsidian"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "mdtype-core",
  "serde",
@@ -899,7 +899,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-rules-stdlib"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "mdtype-core",
  "serde",
@@ -908,7 +908,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-schema-yaml"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "jsonschema",
  "mdtype-core",
@@ -920,7 +920,7 @@ dependencies = [
 
 [[package]]
 name = "mdtype-tests"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "escargot",
  "insta",

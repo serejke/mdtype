@@ -6,6 +6,18 @@ All notable changes to `mdtype` are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-04-26
+
+Bug fix: aliased wikilinks inside Markdown table cells.
+
+### Fixed
+
+- **`links.obsidian_vault`**: wikilinks of the form `[[Target\|Alias]]` inside a Markdown table no longer report the target as missing. The runner now enables comrak's GFM table extension whenever wikilinks are required, so the cell-level `\|` un-escape runs before the wikilink parser inspects the inline content. Without this wiring the wikilink parser saw `Target\|Alias` as a single inline span (backslash consumed, pipe kept literal) and the alias split was lost. Plain `|` cell delimiters and tables themselves were already handled by lower-level Markdown rendering; this only affects the parse pipeline that workspace rules consume. Reported by dogfooding against an Obsidian vault that uses sprint-table CLAUDE.md notes.
+
+### Added
+
+- New fixture `crates/mdtype-tests/fixtures/links-obsidian-vault-tables/` covering `[[Target\|Alias]]` and `[[Target#Anchor\|Alias]]` inside table cells, plus a deliberately broken `[[Nowhere\|Broken]]` to confirm real misses are still flagged.
+
 ## [0.2.0] — 2026-04-26
 
 Cross-file rule support: workspace pipeline + two link-integrity rules. Design rationale

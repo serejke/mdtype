@@ -1,0 +1,4 @@
+./content/index.md
+  error[links.obsidian_vault] line 16: wikilink target 'Nowhere' not found in workspace
+
+mdtype: 1 error across 1 file (2 files scanned)

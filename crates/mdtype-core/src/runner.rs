@@ -145,6 +145,11 @@ fn make_options(reqs: Requirements) -> comrak::Options<'static> {
     let mut options = comrak::Options::default();
     if reqs.links_wiki {
         options.extension.wikilinks_title_after_pipe = true;
+        // GFM tables escape literal `|` as `\|`; without the table extension comrak never
+        // tokenises tables, so a wikilink inside a cell (`[[T\|A]]`) reaches the wikilink
+        // parser with the backslash-pipe intact and the `|alias` split is lost. Enabling
+        // tables runs the cell-level un-escape before the wikilink extension sees content.
+        options.extension.table = true;
     }
     options
 }

@@ -1,0 +1,12 @@
+name: vault-note
+description: |
+  Regression coverage for `[[Target\|Alias]]` wikilinks inside Markdown table cells.
+  GFM tables require `\|` to escape literal pipes inside a cell; the runner enables
+  comrak's table extension so the cell un-escape runs before the wikilink parser sees
+  the content. Without that wiring, every aliased wikilink in a table would be reported
+  as an unresolved target.
+
+workspace:
+  - rule: links.obsidian_vault
+    on_ambiguous: error
+    check_anchors: true
