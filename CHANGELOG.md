@@ -81,6 +81,8 @@ array, items: {type: string, x-entity: NAME}}`), and union (`x-entity: [A, B]`).
 
 ### Changed
 
+- **MSRV raised from 1.89 to 1.99.** The pinned toolchain in `rust-toolchain.toml`
+  is the only version CI tests, so `rust-version` tracks it.
 - **`Schema` gains public `entity: Option<String>` and `reference_specs: Vec<ReferenceSpec>`
   fields.** Source-level break for literal-construction sites; migrate with
   `..Schema::default()`.

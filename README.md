@@ -46,7 +46,7 @@ cd mdtype
 cargo install --path crates/mdtype
 ```
 
-(Rust 1.89 or later. Don't have Rust? `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` first, then re-run.)
+(Rust 1.99 or later. Don't have Rust? `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` first, then re-run.)
 
 Drop a `.mdtype.yaml` at the project root mapping globs to schemas, write a schema per document class, and run:
 

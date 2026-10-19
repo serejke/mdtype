@@ -7,7 +7,7 @@ Thanks for the interest. `mdtype` is a small, opinionated tool — please read t
 ```
 git clone https://github.com/serejke/mdtype
 cd mdtype
-cargo build --workspace          # MSRV 1.89, pinned via rust-toolchain.toml
+cargo build --workspace          # MSRV 1.99, pinned via rust-toolchain.toml
 cargo test  --workspace
 ```
 
