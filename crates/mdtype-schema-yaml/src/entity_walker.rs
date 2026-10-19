@@ -113,32 +113,28 @@ fn walk_property(
     if is_array_type(type_value) {
         if let Some(items) = obj.get("items") {
             let items_pointer = format!("{pointer}/items");
-            if let Some(items_obj) = items.as_object() {
-                if items_obj.contains_key("x-entity") {
-                    require_no_forbidden_at(items_obj, &items_pointer, schema_path)?;
-                    if !is_string_type(items_obj.get("type")) {
-                        return Err(Error::Schema(format!(
-                            "schema {}: x-entity at {items_pointer} requires `type: string` (got {})",
-                            schema_path.display(),
-                            describe_type(items_obj.get("type")),
-                        )));
-                    }
-                    let targets = parse_x_entity(
-                        items_obj.get("x-entity").unwrap(),
-                        &items_pointer,
-                        schema_path,
-                    )?;
-                    return Ok(Some(ReferenceSpec {
-                        field: field.to_string(),
-                        targets,
-                    }));
+            if let Some(items_obj) = items.as_object().filter(|o| o.contains_key("x-entity")) {
+                require_no_forbidden_at(items_obj, &items_pointer, schema_path)?;
+                if !is_string_type(items_obj.get("type")) {
+                    return Err(Error::Schema(format!(
+                        "schema {}: x-entity at {items_pointer} requires `type: string` (got {})",
+                        schema_path.display(),
+                        describe_type(items_obj.get("type")),
+                    )));
                 }
-                // No x-entity on items — but we still have to check no x-entity is
-                // hidden under forbidden constructs in items.
-                forbid_hidden_x_entity(items, &items_pointer, schema_path)?;
-            } else {
-                forbid_hidden_x_entity(items, &items_pointer, schema_path)?;
+                let targets = parse_x_entity(
+                    items_obj.get("x-entity").unwrap(),
+                    &items_pointer,
+                    schema_path,
+                )?;
+                return Ok(Some(ReferenceSpec {
+                    field: field.to_string(),
+                    targets,
+                }));
             }
+            // No x-entity on items — but we still have to check no x-entity is
+            // hidden under forbidden constructs in items.
+            forbid_hidden_x_entity(items, &items_pointer, schema_path)?;
         }
     }
 
